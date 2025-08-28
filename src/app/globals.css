@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -22,14 +23,14 @@
 body {
   background-color: #ffffff;
   color: #e0e0e0;
-  font-family: 'Inter', sans-serif;
+  font-family: "Exo 2", sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
 }
 
 .syne {
-  font-family: "Syne", sans-serif;
+  font-family: "Exo 2", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
 }
@@ -39,10 +40,6 @@ body {
   display: none;
 }
 
-
-/* Clean Notion-Style Glass Effect CSS Classes */
-
-/* Main liquid glass container */
 .glass {
   position: relative;
   backdrop-filter: blur(12px);
