@@ -21,7 +21,7 @@ const SUPPORTED_WALLETS = [
   {
     name: 'MetaMask',
     id: 'metamask',
-    logo: 'https://cdn.jsdelivr.net/gh/MetaMask/brand-resources@master/SVG/metamask-fox.svg',
+    logo: 'https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg',
     color: 'from-[#FF6B35] to-[#F7931E]',
     connector: 'injected',
     downloadUrl: 'https://metamask.io/download/'
@@ -37,7 +37,7 @@ const SUPPORTED_WALLETS = [
   {
     name: 'Coinbase Wallet',
     id: 'coinbase',
-    logo: 'https://www.coinbase.com/img/favicon.ico',
+    logo: 'https://cdn.iconscout.com/icon/free/png-512/free-coinbase-logo-icon-svg-png-download-7651204.png?f=webp&w=512',
     color: 'from-[#0052FF] to-[#1652F0]',
     connector: 'coinbaseWallet',
     downloadUrl: 'https://www.coinbase.com/wallet'
@@ -45,7 +45,7 @@ const SUPPORTED_WALLETS = [
   {
     name: 'Trust Wallet',
     id: 'trust',
-    logo: 'https://trustwallet.com/assets/images/media/assets/trust_platform.svg',
+    logo: 'https://avatars.githubusercontent.com/u/32179889?v=4',
     color: 'from-[#3375BB] to-[#1E88E5]',
     connector: 'injected',
     downloadUrl: 'https://trustwallet.com/'
@@ -53,7 +53,7 @@ const SUPPORTED_WALLETS = [
   {
     name: 'Phantom',
     id: 'phantom',
-    logo: 'https://phantom.app/img/phantom-logo.svg',
+    logo: 'https://mintlify.s3.us-west-1.amazonaws.com/phantom-e50e2e68/resources/images/Phantom_SVG_Icon.svg',
     color: 'from-[#AB9FF2] to-[#4E44CE]',
     connector: 'phantom',
     downloadUrl: 'https://phantom.app/'
@@ -61,7 +61,7 @@ const SUPPORTED_WALLETS = [
   {
     name: 'Binance Wallet',
     id: 'binance',
-    logo: 'https://bin.bnbstatic.com/static/images/common/favicon.ico',
+    logo: 'https://acquisitionlab.s3.ap-southeast-2.amazonaws.com/cms/MGRyFjDRQE3YQWar1B09.png',
     color: 'from-[#F3BA2F] to-[#FCD535]',
     connector: 'injected',
     downloadUrl: 'https://www.binance.com/en/web3wallet'
@@ -754,7 +754,7 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-white flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center">
                       <img 
                         src={wallet.logo} 
                         alt={wallet.name}
