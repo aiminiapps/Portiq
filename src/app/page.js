@@ -379,7 +379,7 @@ function TelegramMiniApp() {
 
   return (
     <Suspense fallback={<CustomLoader />}>
-      <div className="min-h-screen max-w-md w-full syne mx-auto text-black bg-white flex flex-col items-center p-4 relative overflow-hidden">
+      <div className="min-h-screen max-w-md w-full syne mx-auto text-white flex flex-col items-center p-4 relative overflow-hidden">
           <div className="w-full">
             <TopNav />
             <SearchParamsWrapper setActiveTab={setActiveTab} renderContent={renderContent} />
