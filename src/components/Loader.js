@@ -9,6 +9,7 @@ import {
   FaCoins, FaRocket, FaGem, FaChartPie, FaBolt 
 } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
+import Image from 'next/image';
 
 const PortiqLoader = () => {
   const canvasRef = useRef(null);
@@ -119,30 +120,6 @@ const PortiqLoader = () => {
     return () => clearInterval(progressInterval);
   }, [loadingStages.length]);
 
-  // Floating particles animation
-  const FloatingParticle = ({ delay, size = 4, color = "#FF007F" }) => (
-    <motion.div
-      className="absolute rounded-full"
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: color,
-        boxShadow: `0 0 ${size * 2}px ${color}`,
-      }}
-      animate={{
-        y: [-20, -100, -20],
-        x: [Math.random() * 40 - 20, Math.random() * 60 - 30, Math.random() * 40 - 20],
-        opacity: [0, 1, 0],
-      }}
-      transition={{
-        duration: 4,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-    />
-  );
-
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] overflow-hidden">
       {/* Animated background canvas */}
@@ -151,29 +128,6 @@ const PortiqLoader = () => {
         className="absolute inset-0 w-full h-full object-cover opacity-60"
         style={{ filter: 'blur(1px)' }}
       />
-
-      {/* Floating particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-          >
-            <FloatingParticle
-              delay={i * 0.5}
-              size={Math.random() * 6 + 2}
-              color={[
-                "#FF007F", "#FF2FB3", "#FFB82A", "#FF5A2A", "#6C00B8"
-              ][Math.floor(Math.random() * 5)]}
-            />
-          </div>
-        ))}
-      </div>
-
       {/* Main loader content */}
       <div className="relative z-10 flex flex-col items-center space-y-8">
         {/* Logo Section */}
@@ -183,8 +137,6 @@ const PortiqLoader = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Logo background glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-3xl blur-xl opacity-30 scale-110" />
           
           {/* Logo container */}
           <div className="relative glass rounded-3xl p-8 border border-[#FF007F]/30"
@@ -206,26 +158,12 @@ const PortiqLoader = () => {
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <h1 className="text-5xl font-bold text-white tektur mb-2">
-                PORTIQ
-              </h1>
-              <p className="text-gray-300 text-sm font-medium tracking-wider">
+              <Image src='/logo.png' alt='logo' width={300} height={150}/>
+              <p className="text-gray-300 text-lg mt-1.5 first-letter:uppercase lowercase font-medium tracking-wider">
                 AI PORTFOLIO OPTIMIZER
               </p>
             </motion.div>
           </div>
-
-          {/* Rotating ring around logo */}
-          <motion.div
-            className="absolute inset-0 border-2 border-transparent rounded-3xl"
-            style={{
-              background: `linear-gradient(45deg, #FF007F, #FF2FB3, #FFB82A, #FF5A2A) border-box`,
-              WebkitMask: "linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)",
-              WebkitMaskComposite: "subtract",
-            }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          />
         </motion.div>
 
         {/* Loading Progress */}
@@ -315,25 +253,6 @@ const PortiqLoader = () => {
           transition={{ delay: 1, duration: 1 }}
         >
           <p>Powered by Advanced AI • Built for Traders</p>
-        </motion.div>
-      </div>
-
-      {/* Corner decorative elements */}
-      <div className="absolute top-4 right-4">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        >
-          <RiLineChartLine className="text-[#FF007F] opacity-20" size={24} />
-        </motion.div>
-      </div>
-      
-      <div className="absolute bottom-4 left-4">
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        >
-          <RiBarChart2Line className="text-[#FFB82A] opacity-20" size={24} />
         </motion.div>
       </div>
     </div>
