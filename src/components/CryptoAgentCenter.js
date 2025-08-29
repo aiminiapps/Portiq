@@ -281,7 +281,7 @@ NOTE: Use some emojis and write in text format, Use very simple English.
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-fit flex items-center justify-center">
         <motion.div
           className="w-16 h-16 border-4 border-[#FF007F] border-t-transparent rounded-full"
           animate={{ rotate: 360 }}
@@ -293,7 +293,7 @@ NOTE: Use some emojis and write in text format, Use very simple English.
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="h-fit flex items-center justify-center p-4">
         <div className="text-center">
           <div className="text-red-400 text-lg mb-2">Failed to load market data</div>
           <div className="text-gray-400 text-sm">{error}</div>
