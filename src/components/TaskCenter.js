@@ -139,73 +139,23 @@ const PortiqTaskCenter = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] text-white pb-8">
+    <div className="min-h-screen text-white pb-12">
       {/* Header */}
       <motion.div 
-        className="p-6"
+        className=" bg-amber-900"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="w-full bg-amber-500 flex items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white tektur">TASK CENTER</h1>
-            <p className="text-gray-300 text-sm">Earn $PTIQ & unlock premium features</p>
+            <h1 className="text-2xl font-semibold text-center text-white tektur">TASK CENTER</h1>
+            <p className="text-gray-300 text-sm text-center text-balance">Earn $PTIQ & unlock premium features</p>
           </div>
-          <div className="w-16 h-16 bg-gradient-to-br from-[#FF007F] to-[#FF2FB3] rounded-2xl flex items-center justify-center shadow-lg">
-            <RiAiGenerate className="text-white text-2xl" />
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <motion.div 
-            className="glass rounded-xl p-3 text-center border border-[#FFB82A]/20"
-            style={{
-              background: `linear-gradient(135deg, 
-                rgba(255, 184, 42, 0.1) 0%, 
-                rgba(255, 90, 42, 0.05) 100%)`
-            }}
-            whileHover={{ scale: 1.05 }}
-          >
-            <FaCoins className="text-[#FFB82A] mx-auto mb-1" size={20} />
-            <div className="text-lg font-bold text-white">{(agfiPoints || 0).toLocaleString()}</div>
-            <div className="text-xs text-gray-400">$PTIQ Points</div>
-          </motion.div>
-          
-          <motion.div 
-            className="glass rounded-xl p-3 text-center border border-[#FF007F]/20"
-            style={{
-              background: `linear-gradient(135deg, 
-                rgba(255, 0, 127, 0.1) 0%, 
-                rgba(255, 47, 179, 0.05) 100%)`
-            }}
-            whileHover={{ scale: 1.05 }}
-          >
-            <FaGem className="text-[#FF007F] mx-auto mb-1" size={20} />
-            <div className="text-lg font-bold text-white">{passes || 0}</div>
-            <div className="text-xs text-gray-400">Premium Passes</div>
-          </motion.div>
-          
-          <motion.div 
-            className="glass rounded-xl p-3 text-center border border-[#FF2FB3]/20"
-            style={{
-              background: `linear-gradient(135deg, 
-                rgba(255, 47, 179, 0.1) 0%, 
-                rgba(108, 0, 184, 0.05) 100%)`
-            }}
-            whileHover={{ scale: 1.05 }}
-          >
-            <FaTrophy className="text-[#FF2FB3] mx-auto mb-1" size={20} />
-            <div className="text-lg font-bold text-white">
-              {Object.values(tasks).filter(t => t.completed).length}
-            </div>
-            <div className="text-xs text-gray-400">Completed</div>
-          </motion.div>
         </div>
       </motion.div>
 
-      <div className="px-6">
+      <div className="">
         {/* Daily Tasks Section */}
         <motion.div 
           className="mb-8"
@@ -227,7 +177,7 @@ const PortiqTaskCenter = () => {
             {tasksList.filter(task => task.category === 'daily').map((task, index) => (
               <motion.div
                 key={task.id}
-                className="glass rounded-2xl p-4 border border-[#FF007F]/10"
+                className="glass glass-p rounded-2xl p-4 border border-[#FF007F]/10"
                 style={{
                   background: `linear-gradient(135deg, 
                     rgba(255, 0, 127, 0.05) 0%, 
@@ -240,7 +190,7 @@ const PortiqTaskCenter = () => {
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-4">
-                    <div className="w-14 h-14 glass rounded-2xl flex items-center justify-center border border-gray-700/30">
+                    <div className="w-14 h-14 glass glass-p rounded-2xl flex items-center justify-center border border-gray-700/30">
                       {task.icon}
                     </div>
                     <div>
@@ -318,7 +268,7 @@ const PortiqTaskCenter = () => {
             {tasksList.filter(task => ['social', 'referral'].includes(task.category)).map((task, index) => (
               <motion.div
                 key={task.id}
-                className="glass rounded-2xl p-4 border border-[#FFB82A]/10"
+                className="glass glass-p rounded-2xl p-4 border border-[#FFB82A]/10"
                 style={{
                   background: `linear-gradient(135deg, 
                     rgba(255, 184, 42, 0.1) 0%, 
@@ -331,7 +281,7 @@ const PortiqTaskCenter = () => {
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-4">
-                    <div className="w-14 h-14 glass rounded-2xl flex items-center justify-center border border-gray-700/30">
+                    <div className="w-14 h-14 glass glass-p rounded-2xl flex items-center justify-center border border-gray-700/30">
                       {task.icon}
                     </div>
                     <div>
