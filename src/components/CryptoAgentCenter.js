@@ -99,7 +99,14 @@ const PortiqPotentialCenter = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: `Provide comprehensive AI analysis for ${coin.name} (${coin.symbol}):
+          messages: [
+            {
+              role: "system",
+              content: "You are an AI that provides detailed investment research reports for cryptocurrencies."
+            },
+            {
+              role: "user",
+              content: `Provide comprehensive AI analysis for ${coin.name} (${coin.symbol}):
 
 Current Data:
 - Price: $${coin.priceUsd}
@@ -113,29 +120,37 @@ Please analyze:
 3. Portfolio allocation recommendation (percentage for different risk profiles)
 4. Key risks and opportunities
 5. Short-term (1-3 months) and medium-term (3-12 months) outlook
+6. DON'T USE MARKDOWN FORMAT 
 
 Format as a detailed investment research report.
-NOTE: Use some emojis and write in text format. Avoid markdown and use very simple English.`
+NOTE: Use some emojis and write in text format, Use very simple English.
+`
+            }
+          ]
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+      }
+
       const data = await response.json();
-      const thoughts = data.response || `
-**${coin.name} Investment Analysis**
-
-**Technical Outlook:** ${coin.name} is currently trading at $${coin.priceUsd} with ${coin.changePercent24Hr > 0 ? 'bullish' : 'bearish'} momentum showing ${Math.abs(coin.changePercent24Hr).toFixed(2)}% movement in 24h.
-
-**Market Position:** With a market cap of $${formatNumber(coin.marketCapUsd)}, ${coin.name} holds a ${coin.marketCapUsd > 100000000000 ? 'dominant' : 'significant'} position in the crypto ecosystem.
-
-**Portfolio Allocation:**
-- Conservative: ${coin.symbol === 'BTC' || coin.symbol === 'ETH' ? '15-25%' : '2-5%'}
-- Moderate: ${coin.symbol === 'BTC' || coin.symbol === 'ETH' ? '25-40%' : '5-10%'}
-- Aggressive: ${coin.symbol === 'BTC' || coin.symbol === 'ETH' ? '30-50%' : '10-20%'}
-
-**Key Insights:** Strong trading volume of $${formatNumber(coin.volumeUsd24Hr)} indicates healthy liquidity and market interest.
-
-**Outlook:** ${coin.changePercent24Hr > 0 ? 'Positive momentum suggests continued strength' : 'Current consolidation may present strategic entry opportunities'}.
-      `;
+      
+      // Handle the actual API response properly
+      let thoughts;
+      if (data && data.reply) {
+        thoughts = data.reply;
+      } else if (data && data.response) {
+        thoughts = data.response;
+      } else if (data && typeof data === 'string') {
+        thoughts = data;
+      } else if (data && data.message) {
+        thoughts = data.message;
+      } else if (data && data.content) {
+        thoughts = data.content;
+      } else {
+        throw new Error('Invalid API response format');
+      }
       
       setAiThoughts(prev => ({
         ...prev,
@@ -144,7 +159,8 @@ NOTE: Use some emojis and write in text format. Avoid markdown and use very simp
       setCurrentAiThought(thoughts);
 
     } catch (error) {
-      const fallback = `Unable to generate detailed analysis for ${coin.name} at this time. Please try again later.`;
+      console.error('AI API Error:', error);
+      const fallback = `❌ Unable to generate detailed analysis for ${coin.name} at this time.\n\n🔄 API Error: ${error.message}\n\n💡 Please try again later or check your API connection.`;
       setCurrentAiThought(fallback);
     } finally {
       setLoadingAi(false);
