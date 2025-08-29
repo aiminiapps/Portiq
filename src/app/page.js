@@ -359,14 +359,14 @@ const PortiqNavigationButtons = ({ setActiveTab, earningTimer, startEarningTimer
           transition={{ delay: 0.7 + index * 0.1 }}
         >
           <div 
-            className="glass rounded-2xl p-4 mb-2 border border-white/10 flex items-center justify-center h-16"
+            className="glass rounded-2xl p-4 border border-white/10 flex items-center justify-center h-16"
             style={{ background: item.bgColor }}
           >
             <div className={`bg-gradient-to-r ${item.color} bg-clip-text`}>
               {item.icon}
             </div>
           </div>
-          <p className="text-gray-300 text-sm font-medium">{item.label}</p>
+          <p className="text-gray-300 -mt-2 text-sm font-medium">{item.label}</p>
         </motion.button>
       ))}
     </motion.div>
