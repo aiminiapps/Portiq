@@ -114,7 +114,8 @@ Please analyze:
 4. Key risks and opportunities
 5. Short-term (1-3 months) and medium-term (3-12 months) outlook
 
-Format as a detailed investment research report.`
+Format as a detailed investment research report.
+NOTE: Use some emojis and write in text format. Avoid markdown and use very simple English.`
         })
       });
 
@@ -516,7 +517,7 @@ Format as a detailed investment research report.`
             onClick={() => setShowAiModal(false)}
           >
             <motion.div
-              className="glass rounded-t-3xl w-full max-w-lg max-h-[80vh] overflow-hidden"
+              className="glass glass-p rounded-t-3xl w-full max-w-lg max-h-[80vh] overflow-hidden"
               initial={{ y: 400 }}
               animate={{ y: 0 }}
               exit={{ y: 400 }}
