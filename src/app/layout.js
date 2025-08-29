@@ -1,65 +1,70 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata = {
-  title: "AGFI",
-  description: "AGFI - Your is task assistant. Complete the tasks and get the coins.",
-  keywords: "cryptocurrency, bitcoin, ethereum, blockchain, DeFi, crypto trading, mobile AI assistant, AGFI, crypto analysis, digital assets, mobile crypto",
-  authors: [{ name: "AGFI" }],
-  creator: "AGFI",
-  publisher: "AGFI",
+  title: "Portiq | Intelligent Portfolio Agent – $PTIQ",
+  description:
+    "Portiq ($PTIQ) is an AI-powered portfolio optimization agent. It analyzes your wallet, detects imbalances and risks, and recommends personalized rebalancing strategies for better performance.",
+  keywords:
+    "Portiq, PTIQ, AI portfolio, crypto portfolio, wallet analysis, risk detection, rebalancing strategies, intelligent investing, blockchain optimization",
+  authors: [{ name: "Portiq" }],
+  creator: "Portiq AI",
+  publisher: "Portiq Labs",
   robots: "index, follow",
   openGraph: {
-    title: "AGFI | Your AI Tasks",
-    description: "Expert AI-powered cryptocurrency insights and blockchain guidance. Trade smarter with CryptoBot AI on mobile.",
-    url: "agentfi-lovat.vercel.app",
-    siteName: "AGFI CryptoBot",
-    type: "website"
+    title: "Portiq | Intelligent Portfolio Agent – $PTIQ",
+    description:
+      "Portiq ($PTIQ) helps you optimize your crypto portfolio with AI-powered insights, risk analysis, and smart rebalancing strategies.",
+    url: "https://portiq.vercel.app/",
+    siteName: "Portiq – $PTIQ",
+    type: "website",
+    images: [
+      {
+        url: "/og-portiq.png",
+        width: 1200,
+        height: 630,
+        alt: "Portiq – AI Portfolio Agent",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "AGFI | Your AI Tasks",
-    description: "Expert AI-powered cryptocurrency insights and blockchain guidance on mobile.",
-    creator: "@AGFI_AI"
+    card: "summary_large_image",
+    title: "Portiq | Intelligent Portfolio Agent – $PTIQ",
+    description:
+      "Portiq ($PTIQ) analyzes your wallet, detects risks, and provides smart rebalancing recommendations using AI.",
+    creator: "@Portiq_AI",
+    images: ["/og-portiq.png"],
   },
-  viewport: "width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover",
+  viewport:
+    "width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover",
   category: "cryptocurrency",
-  classification: "Mobile AI Assistant, Cryptocurrency, Blockchain",
+  classification:
+    "AI Portfolio Agent, Cryptocurrency, Blockchain, Portfolio Optimization",
   other: {
-    "application-name": "CryptoBot AI",
+    "application-name": "Portiq AI",
     "mobile-web-app-capable": "yes",
     "mobile-web-app-status-bar-style": "black-translucent",
-    "format-detection": "telephone=no"
-  }
+    "format-detection": "telephone=no",
+  },
+  icons: {
+    icon: "/agent/agentlogo.png",
+    shortcut: "/agent/agentlogo.png",
+    apple: "/agent/agentlogo.png",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <Script 
+        <Script
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+        <link rel="icon" href="/agent/agentlogo.png" />
+        <link rel="apple-touch-icon" href="/agent/agentlogo.png" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white flex flex-col`}
-      >
+      <body className="antialiased min-h-screen bg-[#0B0C10] flex flex-col">
         {children}
       </body>
     </html>
