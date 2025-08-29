@@ -286,10 +286,10 @@ GUIDELINES:
   const totalPortfolioValue = userPortfolio.reduce((sum, asset) => sum + asset.value, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <motion.div 
-        className="glass p-4 border-b border-[#FF007F]/20 sticky top-0 z-50"
+        className="glass glass-p border-b border-[#FF007F]/20 sticky top-0 z-50"
         style={{
           background: `linear-gradient(135deg, 
             rgba(255, 0, 127, 0.1) 0%, 
@@ -300,19 +300,19 @@ GUIDELINES:
         transition={{ duration: 0.5 }}
       >
         <div className="text-center">
-          <div className="flex items-center justify-center space-x-3 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-2xl flex items-center justify-center">
-              <RiAiGenerate className="text-white text-lg" />
+          <div className="flex items-center justify-start space-x-3 mb-2">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center">
+              <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50}/>
             </div>
             <div>
               <h1 className="text-xl font-bold text-white tektur">PORTIQ AI ADVISOR</h1>
-              <p className="text-xs text-gray-300">Investment Goal Assistant</p>
+              <p className="text-xs text-left text-gray-300">Investment Goal Assistant</p>
             </div>
           </div>
 
           {/* Portfolio Summary */}
           {userPortfolio.length > 0 && (
-            <div className="flex items-center justify-center space-x-4 text-sm">
+            <div className="flex items-center justify-center space-x-4 text-lg">
               <div className="flex items-center space-x-1 text-[#FFB82A]">
                 <FaCoins size={14} />
                 <span>${totalPortfolioValue.toLocaleString()}</span>
@@ -329,7 +329,7 @@ GUIDELINES:
       </motion.div>
 
       {/* Quick Actions */}
-      <div className="p-4 space-y-3">
+      <div className=" space-y-3">
         {/* Portfolio Input Section */}
         <motion.div
           className="glass rounded-2xl p-4 border border-[#FF007F]/20"
