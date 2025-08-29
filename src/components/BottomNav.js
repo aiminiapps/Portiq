@@ -5,12 +5,10 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { 
-  FaHome, FaChartLine, FaUserPlus, FaTasks, FaRocket,
-  FaCoins, FaGem, FaBrain
-} from 'react-icons/fa';
-import { RiAiGenerate } from 'react-icons/ri';
-import { BiData } from 'react-icons/bi';
+import { FiHome } from "react-icons/fi";
+import { CiWallet } from "react-icons/ci";
+import { GoTasklist } from "react-icons/go";
+import { IoPersonAddOutline } from "react-icons/io5";
 
 export default function PortiqBottomNav({ activeTab, setActiveTab }) {
     const [isVisible, setIsVisible] = useState(true);
@@ -18,14 +16,14 @@ export default function PortiqBottomNav({ activeTab, setActiveTab }) {
     const navItems = [
         { 
             id: 'home', 
-            icon: <FaRocket size={20} />, 
+            icon: <FiHome size={24} />, 
             label: 'Home',
             color: 'from-[#FF007F] to-[#FF2FB3]',
             bgColor: 'rgba(255, 0, 127, 0.1)'
         },
         { 
             id: 'dataCenter', 
-            icon: <FaChartLine size={20} />, 
+            icon: <CiWallet size={24} />, 
             label: 'Analytics',
             color: 'from-[#FFB82A] to-[#FF5A2A]',
             bgColor: 'rgba(255, 184, 42, 0.1)'
@@ -40,14 +38,14 @@ export default function PortiqBottomNav({ activeTab, setActiveTab }) {
         },
         { 
             id: 'invite', 
-            icon: <FaUserPlus size={20} />, 
+            icon: <IoPersonAddOutline size={24} />, 
             label: 'Invite',
             color: 'from-[#6C00B8] to-[#FF007F]',
             bgColor: 'rgba(108, 0, 184, 0.1)'
         },
         { 
             id: 'task', 
-            icon: <FaTasks size={20} />, 
+            icon: <GoTasklist size={24} />, 
             label: 'Tasks',
             color: 'from-[#FF5A2A] to-[#FFB82A]',
             bgColor: 'rgba(255, 90, 42, 0.1)'
