@@ -329,7 +329,7 @@ export default function PortiqCommunityCenter() {
       </AnimatePresence>
 
       {/* Live Activity Feed */}
-      <div className="max-w-md mx-auto px-4">
+      <div className="max-w-md mx-auto">
         <motion.div 
           className="mb-6"
           initial={{ opacity: 0 }}
@@ -343,7 +343,6 @@ export default function PortiqCommunityCenter() {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <h2 className="text-lg font-bold text-white tektur">LIVE OPTIMIZATIONS</h2>
-            <HiSparkles className="text-[#FFB82A]" size={16} />
           </div>
         </motion.div>
 
@@ -352,7 +351,7 @@ export default function PortiqCommunityCenter() {
             {!loading && userActivities.map((activity, index) => (
               <motion.div
                 key={activity.id}
-                className="glass rounded-2xl p-4 border border-[#FF007F]/10"
+                className="glass rounded-2xl p-4 -mt-3 border border-[#FF007F]/10"
                 style={{
                   background: `linear-gradient(135deg, 
                     rgba(255, 0, 127, 0.05) 0%, 
@@ -407,30 +406,7 @@ export default function PortiqCommunityCenter() {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Bottom CTA */}
-      <motion.div 
-        className="mt-12 text-center px-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1 }}
-      >
-        <Link href='/?tab=optimize'>
-          <motion.button
-            className="w-full max-w-sm mx-auto glass-button tektur font-bold py-4 px-8 rounded-2xl text-white shadow-lg mb-4"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onTap={() => hapticFeedback('success')}
-          >
-            <div className="flex items-center justify-center space-x-3">
-              <FaRocket size={16} />
-              <span>JOIN {totalUsers.toLocaleString()}+ OPTIMIZERS</span>
-              <HiSparkles size={16} />
-            </div>
-          </motion.button>
-        </Link>
-        <p className="text-gray-400 text-xs">Start earning $PTIQ with AI portfolio optimization</p>
-      </motion.div>
+        <p className="text-gray-400 text-xs text-center">Start earning $PTIQ with AI portfolio optimization</p>
     </div>
   );
 }
