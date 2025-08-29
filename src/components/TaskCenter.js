@@ -139,7 +139,7 @@ const PortiqTaskCenter = () => {
   );
 
   return (
-    <div className="min-h-screen text-white pb-12">
+    <div className="min-h-screen text-white pb-20">
       {/* Header */}
       <motion.div 
         className=""

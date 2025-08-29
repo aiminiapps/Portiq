@@ -669,7 +669,7 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-24">
       {/* Header */}
       <motion.div 
         className="py-5 text-center"
@@ -849,7 +849,7 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
       {/* Step 2: Portfolio Overview */}
       {step === 2 && walletData && (
         <motion.div
-          className="px-6 space-y-6"
+          className="space-y-6"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
