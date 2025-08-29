@@ -14,6 +14,7 @@ import TaskCenter from '@/components/TaskCenter';
 import InviteCenter from '@/components/InviteCenter';
 import DataCenterHome from '@/components/DataCenterHome';
 import { CheckCircle } from 'lucide-react';
+import PortiqPortfolioCenter from '@/components/CryptoAgentCenter';
 
 // Earning Timer Component
 const EarningTimer = () => {
@@ -316,6 +317,7 @@ function TelegramMiniApp() {
         earningTimer={earningTimer}
         startEarningTimer={startEarningTimer}
       />
+      <PortiqPortfolioCenter/>
       <DataCenterHome />
       <div className="h-10" />
     </div>
