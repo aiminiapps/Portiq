@@ -286,15 +286,12 @@ Format as a detailed investment research report.`
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] pb-6">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-50 glass bg-[#0B0C10]/80 backdrop-blur-xl border-b border-[#FF007F]/10">
+      <div className="sticky glass glass-p top-0 z-50 glass bg-[#0B0C10]/80 backdrop-blur-xl border-b border-[#FF007F]/10">
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] flex items-center justify-center">
-                <FaChartBar className="text-white text-lg" />
-              </div>
               <div>
                 <h1 className="text-white text-xl font-bold tektur">AI MARKET LENS</h1>
                 <p className="text-xs text-gray-400">Intelligent Price Analysis</p>
@@ -320,7 +317,7 @@ Format as a detailed investment research report.`
       </div>
 
       {/* Coins List */}
-      <div className="p-4 space-y-3">
+      <div className="space-y-2">
         <AnimatePresence>
           {coins.map((coin, index) => {
             const allocationPotential = calculateAllocationPotential(coin);
@@ -336,7 +333,7 @@ Format as a detailed investment research report.`
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="glass rounded-2xl overflow-hidden cursor-pointer relative"
+                className="glass glass-p rounded-2xl overflow-hidden cursor-pointer relative"
                 style={{
                   background: `linear-gradient(135deg, 
                     rgba(255, 0, 127, 0.05) 0%, 
