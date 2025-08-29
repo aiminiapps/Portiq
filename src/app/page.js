@@ -308,7 +308,7 @@ const PortiqNavigationButtons = ({ setActiveTab, earningTimer, startEarningTimer
     },
     {
       id: 'SPAI',
-      icon: <Image src="/agent/agentlogo.png" alt="AI Agent" width={32} height={32} />,
+      icon: <Image src="/agent/agentlogo.png" alt="AI Agent" width={32} height={32} className='scale-150'/>,
       label: 'AI Agent',
       color: 'from-[#FF007F] to-[#FF2FB3]',
       bgColor: 'rgba(255, 0, 127, 0.1)'
