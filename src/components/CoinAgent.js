@@ -14,6 +14,7 @@ import {
 import { HiSparkles, HiLightBulb } from 'react-icons/hi';
 import { BiWallet, BiAnalyse } from 'react-icons/bi';
 import { MdAccountBalanceWallet, MdSecurity } from 'react-icons/md';
+import Image from 'next/image';
 
 // Real wallet configurations with actual logos
 const SUPPORTED_WALLETS = [
@@ -668,20 +669,20 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 pb-12">
+    <div className="min-h-screen pb-20">
       {/* Header */}
       <motion.div 
-        className="py-5 px-6 text-center"
+        className="py-5 text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <div className="flex items-center justify-center space-x-3 mb-4">
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] flex items-center justify-center">
-            <FaBrain className="text-white" size={24} />
+            <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50}/>
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-white">PORTIQ AI AGENT</h1>
+            <h1 className="text-xl text-left font-semibold text-white">PORTIQ AI AGENT</h1>
             <p className="text-sm text-gray-300">Real Web3 Portfolio Intelligence</p>
           </div>
         </div>
@@ -721,7 +722,7 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
           ))}
         </div>
         
-        <div className="flex justify-between text-xs text-gray-400 mt-2 max-w-xs mx-auto">
+        <div className="flex justify-between text-xs text-gray-400 mt-2 max-w-xs mx-auto px-12">
           <span>Connect</span>
           <span>Analyze</span>
           <span>Optimize</span>
@@ -731,7 +732,7 @@ Current market conditions suggest ${score > 70 ? 'holding steady with your curre
       {/* Step 1: Wallet Connection */}
       {step === 1 && (
         <motion.div
-          className="px-6 space-y-4"
+          className="space-y-4"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
