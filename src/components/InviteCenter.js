@@ -165,7 +165,7 @@ Join now: ${inviteLink}`;
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-[#FF007F] rounded-xl flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold">1</span>
                 </div>
                 <div>
@@ -185,7 +185,7 @@ Join now: ${inviteLink}`;
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#FFB82A] to-[#FF5A2A] rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-[#FFB82A] rounded-xl flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold">2</span>
                 </div>
                 <div>
@@ -205,7 +205,7 @@ Join now: ${inviteLink}`;
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#FF2FB3] to-[#6C00B8] rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-[#FF2FB3] rounded-xl flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold">3</span>
                 </div>
                 <div>
