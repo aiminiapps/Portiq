@@ -27,14 +27,6 @@ const SUPPORTED_WALLETS = [
     downloadUrl: 'https://metamask.io/download/'
   },
   {
-    name: 'WalletConnect',
-    id: 'walletconnect',
-    logo: 'https://registry.walletconnect.com/api/v1/logo/md/walletconnect-logo.svg',
-    color: 'from-[#3B99FC] to-[#1E88E5]',
-    connector: 'walletconnect',
-    downloadUrl: 'https://walletconnect.com/'
-  },
-  {
     name: 'Coinbase Wallet',
     id: 'coinbase',
     logo: 'https://cdn.iconscout.com/icon/free/png-512/free-coinbase-logo-icon-svg-png-download-7651204.png?f=webp&w=512',
@@ -65,6 +57,14 @@ const SUPPORTED_WALLETS = [
     color: 'from-[#F3BA2F] to-[#FCD535]',
     connector: 'injected',
     downloadUrl: 'https://www.binance.com/en/web3wallet'
+  },
+  {
+    name: 'WalletConnect',
+    id: 'walletconnect',
+    logo: '/agent/agentlogo.png',
+    color: 'from-[#3B99FC] to-[#1E88E5]',
+    connector: 'walletconnect',
+    downloadUrl: 'https://walletconnect.com/'
   }
 ];
 
