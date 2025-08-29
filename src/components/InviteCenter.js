@@ -1,25 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Copy, Share2, CheckCircle } from 'lucide-react';
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaCopy, FaShare, FaCheck, FaCoins, FaUsers, FaGift,
+  FaRocket, FaStar, FaTrophy, FaFire, FaGem
+} from 'react-icons/fa';
+import { RiAiGenerate } from 'react-icons/ri';
+import { HiSparkles } from 'react-icons/hi';
+import { BiTarget } from 'react-icons/bi';
 import Image from 'next/image';
 
-function InviteCenter() {
-  const [inviteCode] = useState('AGFI2025');
+function PortiqInviteCenter() {
+  const [inviteCode] = useState('PORTIQ2025');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [totalInvites, setTotalInvites] = useState(12);
+  const [earnedPTIQ, setEarnedPTIQ] = useState(2400);
+  const [premiumAccess, setPremiumAccess] = useState(3);
+
+  // Mobile haptic feedback
+  const hapticFeedback = useCallback((type = 'light') => {
+    if ('vibrate' in navigator) {
+      const patterns = {
+        light: 10,
+        medium: 50,
+        heavy: 100,
+        success: [50, 30, 50]
+      };
+      navigator.vibrate(patterns[type]);
+    }
+  }, []);
 
   useEffect(() => {
     // Initialize Telegram WebApp
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
-    } else {
-      // Fallback for development
-      telegramWebApp.ready();
     }
   }, []);
 
   const generateInviteLink = () => {
-    const baseUrl = 'https://t.me/agentfiai_bot';
-    return `https://t.me/agentfiai_bot`;
+    return `https://t.me/portiq_bot`;
   };
 
   const handleCopyCode = async () => {
@@ -27,6 +48,7 @@ function InviteCenter() {
       await navigator.clipboard.writeText(inviteCode);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+      hapticFeedback('success');
       
       // Telegram WebApp haptic feedback
       if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -39,15 +61,18 @@ function InviteCenter() {
 
   const handleInviteTraders = () => {
     const inviteLink = generateInviteLink();
-    const shareText = `🚀 Join me on AGFI ! 
+    const shareText = `🚀 Join me on Portiq - AI Portfolio Optimizer!
 
-🤖 Get AI-powered tasks insights
-📈 Earn AGFI Points through tasks complete
-🎯 Access exclusive AI missions
+💎 Get AI-powered portfolio analysis
+📈 Earn $PTIQ tokens through optimization
+🎯 Access premium trading insights
+🤖 Personal AI investment advisor
 
 Use my invite code: ${inviteCode}
 
 Join now: ${inviteLink}`;
+
+    hapticFeedback('medium');
 
     if (window.Telegram?.WebApp) {
       // Use Telegram's native sharing
@@ -56,7 +81,7 @@ Join now: ${inviteLink}`;
       // Fallback for web
       if (navigator.share) {
         navigator.share({
-          title: 'Join AGFI Tasks Platform',
+          title: 'Join Portiq Portfolio Optimizer',
           text: shareText,
           url: inviteLink
         });
@@ -69,88 +94,340 @@ Join now: ${inviteLink}`;
   };
 
   return (
-    <div className="text-white overflow-hidden">
-      <div className="relative z-10 max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] text-white pb-8">
+      <div className="relative z-10 max-w-md mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-semibold text-black">
-              Invite Traders
-            </h1>
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-lg">
-                <Image src='/agent/agentlogo.png' alt='logo' width={100} height={150}/>
+        <motion.div 
+          className="text-center py-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white tektur">
+                INVITE & <span className="bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] bg-clip-text text-transparent">EARN</span>
+              </h1>
+              <p className="text-gray-300 text-sm mt-1">Build your trading network</p>
+            </div>
+            <div className="w-16 h-16 bg-gradient-to-br from-[#FF007F] to-[#FF2FB3] rounded-2xl flex items-center justify-center shadow-lg">
+              <RiAiGenerate className="text-white text-2xl" />
             </div>
           </div>
-        </div>
-        <div className="relative mb-8 flex items-center justify-center">
-                <Image src='/assets/invite.svg' alt='Character' width={400} height={400} quality={80}/>
-        </div>
 
-        {/* How It Works Steps */}
-        <div className="space-y-4 mb-8">
-          <h1 className='text-stone-800 text-xl font-semibold'>How It Works - Invite to Earn</h1>
-          <div>
-            <h2 className='text-stone-800 text-xl font-medium'>Share Your Invitation Link</h2>
-            <p className='text-stone-700 py-1'>Invite others to AGFI by sharing your personal referral link. For each successful join, you unlock a strategic opportunity.</p>
-            <h2 className='text-stone-800 text-xl font-medium mt-4'>Your Friends Join AGFI</h2>
-            <p className='text-stone-700 py-1'>They start submitting predictions, engaging with AI agents, and earning AGFI Points.</p>
-            <h2 className='text-stone-800 text-xl font-medium mt-4'>1 Friend = 1 Agent LICENSE</h2>
-            <p className='text-stone-700 py-1'>Each referral gives you an Agent License, which allows you to submit premium predictions, earn bonus rewards, or access exclusive AI missions.<br/>(Each pass is worth up to 3,000 AGFI Points based on your performance.)</p>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <motion.div 
+              className="glass rounded-xl p-3 border border-[#FF007F]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 0, 127, 0.1) 0%, 
+                  rgba(255, 47, 179, 0.05) 100%)`
+              }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <FaUsers className="text-[#FF007F] mx-auto mb-1" size={20} />
+              <div className="text-lg font-bold text-white">{totalInvites}</div>
+              <div className="text-xs text-gray-400">Invites</div>
+            </motion.div>
+            
+            <motion.div 
+              className="glass rounded-xl p-3 border border-[#FFB82A]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 184, 42, 0.1) 0%, 
+                  rgba(255, 90, 42, 0.05) 100%)`
+              }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <FaCoins className="text-[#FFB82A] mx-auto mb-1" size={20} />
+              <div className="text-lg font-bold text-white">{earnedPTIQ}</div>
+              <div className="text-xs text-gray-400">$PTIQ</div>
+            </motion.div>
+            
+            <motion.div 
+              className="glass rounded-xl p-3 border border-[#FF2FB3]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 47, 179, 0.1) 0%, 
+                  rgba(108, 0, 184, 0.05) 100%)`
+              }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <FaGem className="text-[#FF2FB3] mx-auto mb-1" size={20} />
+              <div className="text-lg font-bold text-white">{premiumAccess}</div>
+              <div className="text-xs text-gray-400">Premium</div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Illustration */}
+        <motion.div 
+          className="relative mb-8 flex items-center justify-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+        >
+          <div className="relative">
+            <div className="w-64 h-64 bg-gradient-to-br from-[#FF007F]/20 to-[#FF2FB3]/20 rounded-full flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-[#FF007F]/30 to-[#FFB82A]/30 rounded-full flex items-center justify-center">
+                <div className="text-6xl">💎</div>
+              </div>
+            </div>
+            
+            {/* Floating Icons */}
+            <motion.div
+              className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-full flex items-center justify-center"
+              animate={{ y: [-5, 5, -5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <FaRocket className="text-white" size={20} />
+            </motion.div>
+            
+            <motion.div
+              className="absolute -bottom-4 -left-4 w-12 h-12 bg-gradient-to-r from-[#FFB82A] to-[#FF5A2A] rounded-full flex items-center justify-center"
+              animate={{ y: [5, -5, 5] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              <FaCoins className="text-white" size={20} />
+            </motion.div>
+            
+            <motion.div
+              className="absolute top-1/2 -left-8 w-10 h-10 bg-gradient-to-r from-[#FF2FB3] to-[#6C00B8] rounded-full flex items-center justify-center"
+              animate={{ x: [-3, 3, -3] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <HiSparkles className="text-white" size={16} />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* How It Works */}
+        <motion.div 
+          className="space-y-6 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <h2 className="text-2xl font-bold text-white text-center tektur mb-6">
+            HOW IT <span className="bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] bg-clip-text text-transparent">WORKS</span>
+          </h2>
+          
+          <div className="space-y-4">
+            <motion.div 
+              className="glass rounded-2xl p-4 border border-[#FF007F]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 0, 127, 0.05) 0%, 
+                  rgba(255, 47, 179, 0.03) 100%)`
+              }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold">1</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold mb-1">Share Your Link</h3>
+                  <p className="text-gray-300 text-sm">Invite traders to join Portiq and discover AI-powered portfolio optimization.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="glass rounded-2xl p-4 border border-[#FFB82A]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 184, 42, 0.1) 0%, 
+                  rgba(255, 90, 42, 0.05) 100%)`
+              }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#FFB82A] to-[#FF5A2A] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold">2</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold mb-1">Friends Join & Optimize</h3>
+                  <p className="text-gray-300 text-sm">They connect wallets, get AI analysis, and start earning $PTIQ tokens.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="glass rounded-2xl p-4 border border-[#FF2FB3]/20"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 47, 179, 0.1) 0%, 
+                  rgba(108, 0, 184, 0.05) 100%)`
+              }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-[#FF2FB3] to-[#6C00B8] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold">3</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold mb-1">Earn Premium Access</h3>
+                  <p className="text-gray-300 text-sm">1 Friend = Premium AI License worth up to 1,000 $PTIQ tokens and exclusive features!</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
 
         {/* Invite Code Section */}
-        <div className="glass rounded-xl p-6 mb-6">
-          <div className="text-center mb-4">
-            <h3 className="text-lg font-medium text-stone-800 mb-2">Your Invite Code</h3>
-            <div className="bg-blue-500/10 rounded-lg p-3 border border-gray-600/50">
-              <div className="font-mono text-xl text-gray-600 tracking-wider">{inviteCode}</div>
+        <motion.div 
+          className="glass rounded-2xl p-6 mb-6 border border-[#FF007F]/20"
+          style={{
+            background: `linear-gradient(135deg, 
+              rgba(255, 0, 127, 0.1) 0%, 
+              rgba(255, 47, 179, 0.05) 100%)`
+          }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.7 }}
+        >
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <FaStar className="text-[#FFB82A]" size={20} />
+              <h3 className="text-lg font-bold text-white">Your Invite Code</h3>
+              <FaStar className="text-[#FFB82A]" size={20} />
             </div>
+            
+            <div className="glass rounded-xl p-4 border border-[#FFB82A]/30 mb-4"
+              style={{
+                background: `linear-gradient(135deg, 
+                  rgba(255, 184, 42, 0.1) 0%, 
+                  rgba(255, 90, 42, 0.05) 100%)`
+              }}
+            >
+              <div className="font-mono text-2xl text-[#FFB82A] tracking-wider font-bold">
+                {inviteCode}
+              </div>
+            </div>
+            
+            <p className="text-gray-300 text-sm">
+              Share this code for instant recognition and bonus rewards!
+            </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Action Buttons */}
-        <div className="space-y-4">
-          <button
+        <motion.div 
+          className="space-y-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <motion.button
             onClick={handleInviteTraders}
-            className="glass-light glass-blue glass-button w-full "
+            className="w-full glass-button tektur font-bold py-4 rounded-2xl"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <div className="flex items-center justify-center space-x-2">
-              <Share2 className="w-5 h-5" />
-              <span>Invite Traders</span>
+            <div className="flex items-center justify-center space-x-3">
+              <FaShare size={18} />
+              <span>INVITE TRADERS</span>
+              <HiSparkles size={18} />
             </div>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={handleCopyCode}
-            className="glass-light glass-dark w-full text-stone-700 font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 transform"
+            className="w-full glass rounded-2xl py-4 border border-[#FFB82A]/30 text-white font-bold transition-all duration-200"
+            style={{
+              background: `linear-gradient(135deg, 
+                rgba(255, 184, 42, 0.1) 0%, 
+                rgba(255, 90, 42, 0.05) 100%)`
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="flex items-center justify-center space-x-2">
-              {copySuccess ? (
-                <>
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-5 h-5" />
-                  <span>Copy Code</span>
-                </>
-              )}
+              <AnimatePresence mode="wait">
+                {copySuccess ? (
+                  <motion.div
+                    key="success"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="flex items-center space-x-2"
+                  >
+                    <FaCheck className="text-green-400" size={18} />
+                    <span className="text-green-400">COPIED!</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="copy"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="flex items-center space-x-2"
+                  >
+                    <FaCopy size={18} />
+                    <span>COPY CODE</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
+
+        {/* Rewards Info */}
+        <motion.div 
+          className="mt-8 glass rounded-2xl p-4 border border-[#FF5A2A]/20"
+          style={{
+            background: `linear-gradient(135deg, 
+              rgba(255, 90, 42, 0.1) 0%, 
+              rgba(255, 184, 42, 0.05) 100%)`
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+        >
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-3">
+              <FaTrophy className="text-[#FFB82A]" size={20} />
+              <h3 className="text-white font-bold">Referral Rewards</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="bg-gray-800/30 rounded-lg p-3">
+                <div className="text-[#FF007F] font-bold">200 $PTIQ</div>
+                <div className="text-gray-400">Per Referral</div>
+              </div>
+              <div className="bg-gray-800/30 rounded-lg p-3">
+                <div className="text-[#FFB82A] font-bold">Premium Access</div>
+                <div className="text-gray-400">AI Features</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-stone-700">
-            Share AGFI with friends and earn together! 
+        <motion.div 
+          className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+        >
+          <p className="text-xs text-gray-400">
+            Build your network and earn together with Portiq AI! 🚀
           </p>
-        </div>
+        </motion.div>
       </div>
-      <div className='h-22'/>
     </div>
   );
 }
 
-export default InviteCenter;
+export default PortiqInviteCenter;
