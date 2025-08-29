@@ -94,115 +94,47 @@ Join now: ${inviteLink}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D] text-white pb-8">
-      <div className="relative z-10 max-w-md mx-auto px-4">
+    <div className="min-h-screen  text-white pb-16">
+      <div className="relative z-10 max-w-md mx-auto">
         {/* Header */}
         <motion.div 
-          className="text-center py-8"
+          className="text-center mt-2"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-center space-x-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white tektur">
+              <h1 className="text-2xl font-semibold text-white tektur">
                 INVITE & <span className="bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] bg-clip-text text-transparent">EARN</span>
               </h1>
               <p className="text-gray-300 text-sm mt-1">Build your trading network</p>
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-[#FF007F] to-[#FF2FB3] rounded-2xl flex items-center justify-center shadow-lg">
-              <RiAiGenerate className="text-white text-2xl" />
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <motion.div 
-              className="glass rounded-xl p-3 border border-[#FF007F]/20"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(255, 0, 127, 0.1) 0%, 
-                  rgba(255, 47, 179, 0.05) 100%)`
-              }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <FaUsers className="text-[#FF007F] mx-auto mb-1" size={20} />
-              <div className="text-lg font-bold text-white">{totalInvites}</div>
-              <div className="text-xs text-gray-400">Invites</div>
-            </motion.div>
-            
-            <motion.div 
-              className="glass rounded-xl p-3 border border-[#FFB82A]/20"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(255, 184, 42, 0.1) 0%, 
-                  rgba(255, 90, 42, 0.05) 100%)`
-              }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <FaCoins className="text-[#FFB82A] mx-auto mb-1" size={20} />
-              <div className="text-lg font-bold text-white">{earnedPTIQ}</div>
-              <div className="text-xs text-gray-400">$PTIQ</div>
-            </motion.div>
-            
-            <motion.div 
-              className="glass rounded-xl p-3 border border-[#FF2FB3]/20"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(255, 47, 179, 0.1) 0%, 
-                  rgba(108, 0, 184, 0.05) 100%)`
-              }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <FaGem className="text-[#FF2FB3] mx-auto mb-1" size={20} />
-              <div className="text-lg font-bold text-white">{premiumAccess}</div>
-              <div className="text-xs text-gray-400">Premium</div>
-            </motion.div>
           </div>
         </motion.div>
 
         {/* Illustration */}
         <motion.div 
-          className="relative mb-8 flex items-center justify-center"
+          className="relative my-8 flex items-center justify-center"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
           <div className="relative">
             <div className="w-64 h-64 bg-gradient-to-br from-[#FF007F]/20 to-[#FF2FB3]/20 rounded-full flex items-center justify-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-[#FF007F]/30 to-[#FFB82A]/30 rounded-full flex items-center justify-center">
-                <div className="text-6xl">💎</div>
-              </div>
+                <Image src='/agent/agentlogo.png' alt='logo' width={300} height={300}/>
             </div>
             
             {/* Floating Icons */}
             <motion.div
-              className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-full flex items-center justify-center"
+              className="absolute -top-4 -right-4 w-12 h-12 bg-[#FF007F] rounded-full flex items-center justify-center"
               animate={{ y: [-5, 5, -5] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               <FaRocket className="text-white" size={20} />
-            </motion.div>
-            
+            </motion.div>            
             <motion.div
-              className="absolute -bottom-4 -left-4 w-12 h-12 bg-gradient-to-r from-[#FFB82A] to-[#FF5A2A] rounded-full flex items-center justify-center"
-              animate={{ y: [5, -5, 5] }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-            >
-              <FaCoins className="text-white" size={20} />
-            </motion.div>
-            
-            <motion.div
-              className="absolute top-1/2 -left-8 w-10 h-10 bg-gradient-to-r from-[#FF2FB3] to-[#6C00B8] rounded-full flex items-center justify-center"
+              className="absolute top-1/2 -left-8 w-10 h-10 bg-[#FF2FB3] rounded-full flex items-center justify-center"
               animate={{ x: [-3, 3, -3] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
@@ -422,7 +354,7 @@ Join now: ${inviteLink}`;
           transition={{ delay: 1 }}
         >
           <p className="text-xs text-gray-400">
-            Build your network and earn together with Portiq AI! 🚀
+            Build your network and earn together with Portiq AI! 
           </p>
         </motion.div>
       </div>
