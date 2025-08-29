@@ -52,9 +52,9 @@ const PortiqLoader = () => {
 
       // Animated rings
       const rings = [
-        { radius: 80 + Math.sin(time * 0.02) * 10, color: 'rgba(255, 0, 127, 0.3)', width: 3 },
-        { radius: 120 + Math.sin(time * 0.015) * 15, color: 'rgba(255, 47, 179, 0.2)', width: 2 },
-        { radius: 160 + Math.sin(time * 0.01) * 20, color: 'rgba(255, 184, 42, 0.15)', width: 1.5 }
+        { radius: 80 + Math.sin(time * 0.02) * 10, color: 'rgba(255, 0, 127, 0.3)', width: 0.5 },
+        { radius: 120 + Math.sin(time * 0.015) * 15, color: 'rgba(255, 47, 179, 0.2)', width: 0.5 },
+        { radius: 160 + Math.sin(time * 0.01) * 20, color: 'rgba(255, 184, 42, 0.15)', width: 0.5 }
       ];
 
       rings.forEach((ring, index) => {
