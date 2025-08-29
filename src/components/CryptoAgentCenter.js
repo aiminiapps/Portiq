@@ -293,7 +293,7 @@ Format as a detailed investment research report.`
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div>
-                <h1 className="text-white text-xl font-bold tektur">AI MARKET LENS</h1>
+                <h1 className="text-white text-xl font-semibold tektur">AI MARKET LENS</h1>
                 <p className="text-xs text-gray-400">Intelligent Price Analysis</p>
               </div>
             </div>
@@ -358,13 +358,13 @@ Format as a detailed investment research report.`
                         <img 
                           src={coin.image} 
                           alt={coin.name}
-                          className="w-14 h-14 rounded-full"
+                          className="w-14 h-14 rounded-xl"
                           onError={(e) => {
                             e.target.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${category.color}"><circle cx="12" cy="12" r="10"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10">${coin.symbol.charAt(0)}</text></svg>`;
                           }}
                         />
                         <div 
-                          className="absolute -bottom-1 -right-1 px-2 py-1 rounded-full text-xs font-bold text-white"
+                          className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold text-white"
                           style={{ backgroundColor: category.color }}
                         >
                           {category.name}
@@ -372,9 +372,9 @@ Format as a detailed investment research report.`
                       </div>
                       
                       <div>
-                        <h3 className="text-lg font-bold text-white">{coin.symbol}</h3>
-                        <p className="text-sm text-gray-300">{coin.name}</p>
-                        <div className="text-xl font-bold text-white mt-1">
+                        {/* <h3 className="text-lg font-bold text-white">{coin.symbol}</h3> */}
+                        <p className="text-lg font-semibold text-white">{coin.name}</p>
+                        <div className="text-lg font-semibold text-gray-200">
                           {formatPrice(coin.priceUsd)}
                         </div>
                       </div>
@@ -413,7 +413,7 @@ Format as a detailed investment research report.`
                       <motion.div
                         className="h-full rounded-full"
                         style={{
-                          background: `linear-gradient(90deg, ${category.color}, #FFB82A)`
+                          background: `${category.color}`
                         }}
                         initial={{ width: 0 }}
                         animate={{ width: `${allocationPotential}%` }}
