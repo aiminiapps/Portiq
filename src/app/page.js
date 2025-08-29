@@ -16,11 +16,12 @@ import InviteCenter from '@/components/InviteCenter';
 import DataCenterHome from '@/components/DataCenterHome';
 import PortiqPortfolioCenter from '@/components/CryptoAgentCenter';
 import { 
-  FaCheck, FaTasks, FaUserPlus, FaRocket, FaCoins, FaGem,
+  FaCheck, FaTasks, FaUserPlus, FaCoins, FaGem,
   FaClock, FaFire, FaStar, FaTrophy, FaPlay
 } from 'react-icons/fa';
 import { RiAiGenerate, RiTwitterXFill } from 'react-icons/ri';
 import { HiSparkles } from 'react-icons/hi';
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 // Enhanced Earning Timer Component
 const PortiqEarningTimer = () => {
@@ -191,13 +192,13 @@ const PortiqUserBalance = () => {
   
   return (
     <motion.div 
-      className="grid grid-cols-2 gap-4 mb-6"
+      className="grid grid-cols-2 gap-4 "
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
       <motion.div 
-        className="glass rounded-2xl p-4 text-center border border-[#FFB82A]/20"
+        className="glass glass-p rounded-2xl p-4 text-center border border-[#FFB82A]/20"
         style={{
           background: `linear-gradient(135deg, 
             rgba(255, 184, 42, 0.1) 0%, 
@@ -211,7 +212,7 @@ const PortiqUserBalance = () => {
       </motion.div>
       
       <motion.div 
-        className="glass rounded-2xl p-4 text-center border border-[#FF007F]/20"
+        className="glass glass-p rounded-2xl p-4 text-center border border-[#FF007F]/20"
         style={{
           background: `linear-gradient(135deg, 
             rgba(255, 0, 127, 0.1) 0%, 
@@ -245,7 +246,7 @@ const PortiqSocialTask = () => {
 
   return (
     <motion.div 
-      className="glass rounded-2xl p-4 border border-[#FF5A2A]/20 mb-6"
+      className="glass glass-p rounded-2xl p-4 border border-[#FF5A2A]/20 -mt-6"
       style={{
         background: `linear-gradient(135deg, 
           rgba(255, 90, 42, 0.1) 0%, 
@@ -256,14 +257,14 @@ const PortiqSocialTask = () => {
       transition={{ delay: 0.4 }}
       whileHover={{ scale: 1.02 }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex p-2 items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] rounded-xl flex items-center justify-center">
-            <RiTwitterXFill className="text-white" size={20} />
+            <RiTwitterXFill className="text-white" size={25} />
           </div>
           <div>
-            <h3 className="text-white font-bold">Follow Portiq on X</h3>
-            <p className="text-gray-300 text-sm">Get 1,000 $PTIQ Points instantly</p>
+            <h3 className="text-white font-semibold">Follow Portiq on X</h3>
+            <p className="text-gray-400 text-sm">Get 1,000 $PTIQ Points instantly</p>
           </div>
         </div>
         <motion.button
@@ -280,7 +281,7 @@ const PortiqSocialTask = () => {
           {completed ? (
             <FaCheck className="text-white" size={16} />
           ) : (
-            <FaRocket className="text-white" size={16} />
+            <FaExternalLinkAlt className="text-white" size={16} />
           )}
         </motion.button>
       </div>
@@ -433,37 +434,23 @@ function PortiqTelegramMiniApp() {
   }, [router, hapticFeedback]);
 
   const PortiqTopNav = () => (
-    <motion.div 
+    <div 
       className="w-full mb-6"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
     >
       <div className="flex justify-between items-center">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
+        <div>
           <Image src="/logo.png" alt="Portiq Logo" width={200} height={60} priority />
-        </motion.div>
-        <motion.div 
-          className="text-right glass rounded-xl p-3 border border-[#FF007F]/20"
-          style={{
-            background: `linear-gradient(135deg, 
-              rgba(255, 0, 127, 0.1) 0%, 
-              rgba(255, 47, 179, 0.05) 100%)`
-          }}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+        </div>
+        <div 
+          className="text-right"
         >
           <p className="text-gray-400 text-sm">Welcome back</p>
           <p className="text-white text-lg font-bold">
             {user?.first_name || 'Trader'}
           </p>
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 
   const renderHomeContent = () => (
@@ -473,7 +460,7 @@ function PortiqTelegramMiniApp() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <PortiqEarningTimer />
+      {/* <PortiqEarningTimer /> */}
       <PortiqUserBalance />
       <PortiqSocialTask />
       <PortiqNavigationButtons
@@ -550,7 +537,7 @@ function PortiqTelegramMiniApp() {
 
   return (
     <Suspense fallback={<CustomLoader />}>
-      <div className="min-h-screen max-w-md w-full mx-auto text-white flex flex-col items-center p-4 relative overflow-hidden bg-gradient-to-br from-[#0B0C10] to-[#1A1A1D]">
+      <div className="min-h-screen max-w-md w-full mx-auto text-white flex flex-col items-center p-4 relative overflow-hidden ">
         <div className="w-full">
           <PortiqTopNav />
           <SearchParamsWrapper setActiveTab={setActiveTab} renderContent={renderContent} />
