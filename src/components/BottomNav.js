@@ -1,80 +1,136 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { 
+  FaHome, FaChartLine, FaUserPlus, FaTasks, FaRocket,
+  FaCoins, FaGem, FaBrain
+} from 'react-icons/fa';
+import { RiAiGenerate } from 'react-icons/ri';
+import { BiData } from 'react-icons/bi';
 
-export default function BottomNav({ activeTab, setActiveTab }) {
+export default function PortiqBottomNav({ activeTab, setActiveTab }) {
     const [isVisible, setIsVisible] = useState(true);
 
     const navItems = [
-        { id: 'home', icon: '/bottomnav/home.svg', label: 'Agent' },
-        { id: 'dataCenter', icon: '/bottomnav/ai-tasks.svg', label: 'Data center' },
+        { 
+            id: 'home', 
+            icon: <FaRocket size={20} />, 
+            label: 'Home',
+            color: 'from-[#FF007F] to-[#FF2FB3]',
+            bgColor: 'rgba(255, 0, 127, 0.1)'
+        },
+        { 
+            id: 'dataCenter', 
+            icon: <FaChartLine size={20} />, 
+            label: 'Analytics',
+            color: 'from-[#FFB82A] to-[#FF5A2A]',
+            bgColor: 'rgba(255, 184, 42, 0.1)'
+        },
         { 
             id: 'SPAI', 
-            icon: '/agent/agentlogo.png', 
-            label: 'SPAI',
-            isSpecial: true
+            icon: <Image src="/agent/agentlogo.png" alt="AI Agent" width={28} height={28} className='scale-150'/>, 
+            label: 'AI Agent',
+            isSpecial: true,
+            color: 'from-[#FF2FB3] to-[#6C00B8]',
+            bgColor: 'rgba(255, 47, 179, 0.15)'
         },
-        { id: 'invite', icon: '/bottomnav/invite.svg', label: 'Invite' },
-        { id: 'task', icon: '/bottomnav/tasks.svg', label: 'Task' },
+        { 
+            id: 'invite', 
+            icon: <FaUserPlus size={20} />, 
+            label: 'Invite',
+            color: 'from-[#6C00B8] to-[#FF007F]',
+            bgColor: 'rgba(108, 0, 184, 0.1)'
+        },
+        { 
+            id: 'task', 
+            icon: <FaTasks size={20} />, 
+            label: 'Tasks',
+            color: 'from-[#FF5A2A] to-[#FFB82A]',
+            bgColor: 'rgba(255, 90, 42, 0.1)'
+        },
     ];
 
     return (
-        <div className="glass-blue w-full bottomnav backdrop-blur-sm rounded-t-xl py-1 shadow-xl">
+        <motion.div 
+            className="glass glass-p w-full max-w-md mx-3 bottomnav backdrop-blur-xl rounded-t-3xl py-2 shadow-2xl border-t border-[#FF007F]/20"
+            style={{
+                background: `linear-gradient(135deg, 
+                    rgba(11, 12, 16, 0.95) 0%, 
+                    rgba(26, 26, 29, 0.95) 100%)`
+            }}
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+        >
             <nav className={cn(
-                "flex justify-around items-center w-full transition-all duration-300 transform",
+                "flex justify-around items-center w-full transition-all duration-300 px-2",
                 isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
             )}>
-                {navItems.map((item) => (
-                    <Link
+                {navItems.map((item, index) => (
+                    <motion.div
                         key={item.id}
-                        href={`/?tab=${item.id}`}
-                        onClick={() => setActiveTab(item.id)}
-                        className={cn(
-                            "flex flex-col items-center px-2.5 py-2 relative transition-all duration-300 rounded-lg",
-                            activeTab === item.id
-                                ? "text-white"
-                                : "text-gray-400 hover:text-white"
-                        )}
+                        className="relative"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
                     >
-                        <div className={cn(
-                            "transition-all duration-300 flex items-center justify-center",
-                            activeTab === item.id && !item.isSpecial
-                                ? "text-white"
-                                : "",
-                            item.isSpecial ? "" : "mb-1"
-                        )}>
-                            <Image 
-                                src={item.icon} 
-                                width={50} 
-                                height={50} 
-                                quality={80} 
-                                alt={item.label} 
+                        <Link
+                            href={`/?tab=${item.id}`}
+                            onClick={() => setActiveTab(item.id)}
+                            className={cn(
+                                "flex flex-col items-center relative transition-all duration-300 rounded-2xl",
+                                activeTab === item.id
+                                    ? "text-white"
+                                    : "text-gray-400 hover:text-white"
+                            )}
+                        >
+                            {/* Icon Container */}
+                            <motion.div 
                                 className={cn(
+                                    "relative flex items-center justify-center rounded-2xl transition-all duration-300",
                                     activeTab === item.id 
-                                        ? "scale-[72%]" 
-                                        : "scale-[70%]",
-                                    item.isSpecial ? "scale-[105%] mt-1" : ""
+                                        ? "w-12 h-12 mb-1" 
+                                        : "w-10 h-10 mb-1",
+                                    item.isSpecial ? "w-14 h-14" : ""
                                 )}
-                            />
-                        </div>
-                        <span className={cn(
-                            "text-[10px] font-medium transition-all duration-300 hidden",
-                            activeTab === item.id
-                                ? "opacity-100 text-white"
-                                : "opacity-70 text-gray-400",
-                            item.isSpecial ? "mt-1" : ""
-                        )}>
-                            {item.label}
-                        </span>
-                        {activeTab === item.id && (
-                            <div className="absolute hidden -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-400 rounded-full" />
-                        )}
-                    </Link>
+                                style={{
+                                    background: activeTab === item.id ? item.bgColor : 'transparent'
+                                }}
+                                animate={{
+                                    scale: activeTab === item.id ? 1.1 : 1,
+                                }}
+                            >
+                                {/* Active state glow effect */}
+                                {activeTab === item.id && (
+                                    <motion.div
+                                        className="absolute inset-0 rounded-2xl z-0"
+                                        style={{
+                                            background: `linear-gradient(135deg, ${item.color.split(' ')[1]} 0%, ${item.color.split(' ')[3]} 100%)`,
+                                            opacity: 0.1
+                                        }}
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 0.1 }}
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                )}
+
+                                {/* Icon */}
+                                <div className={cn(
+                                    "transition-all duration-300 flex items-center justify-center relative z-10",
+                                )}>
+                                    {item.icon}
+                                </div>
+                            </motion.div>
+                        </Link>
+                    </motion.div>
                 ))}
             </nav>
-        </div>
+        </motion.div>
     );
 }
