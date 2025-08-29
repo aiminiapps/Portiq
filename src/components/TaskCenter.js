@@ -142,12 +142,12 @@ const PortiqTaskCenter = () => {
     <div className="min-h-screen text-white pb-12">
       {/* Header */}
       <motion.div 
-        className=" bg-amber-900"
+        className=""
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="w-full bg-amber-500 flex items-center mb-6">
+        <div className="w-full flex items-center justify-center mb-6">
           <div>
             <h1 className="text-2xl font-semibold text-center text-white tektur">TASK CENTER</h1>
             <p className="text-gray-300 text-sm text-center text-balance">Earn $PTIQ & unlock premium features</p>
@@ -337,48 +337,6 @@ const PortiqTaskCenter = () => {
                 )}
               </motion.div>
             ))}
-          </div>
-        </motion.div>
-
-        {/* Premium Passes Section */}
-        <motion.div 
-          className="mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <div className="glass rounded-2xl p-6 border border-[#FF007F]/20 mb-6"
-            style={{
-              background: `linear-gradient(135deg, 
-                rgba(255, 0, 127, 0.1) 0%, 
-                rgba(255, 47, 179, 0.05) 100%)`
-            }}
-          >
-            <div className="text-center mb-4">
-              <div className="flex items-center justify-center space-x-2 mb-2">
-                <FaRocket className="text-[#FF007F]" size={24} />
-                <h2 className="text-2xl font-bold text-white tektur">PREMIUM PASSES</h2>
-              </div>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Unlock your AI Portfolio Agent with Premium Passes. Get advanced optimization, 
-                exclusive insights, and earn enhanced $PTIQ rewards based on performance.
-              </p>
-            </div>
-
-            {error && (
-              <motion.div
-                className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <p className="text-red-400 text-center text-sm">{error}</p>
-              </motion.div>
-            )}
-
-            <div className="flex gap-4">
-              <PassOption count={1} price={500} />
-              <PassOption count={5} price={2000} popular={true} />
-            </div>
           </div>
         </motion.div>
       </div>
