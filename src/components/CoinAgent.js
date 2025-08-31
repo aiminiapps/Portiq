@@ -1087,17 +1087,18 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               variants={slideUp}
               initial="hidden"
               animate="visible"
-              className="space-y-6"
+              className="space-y-6 pb-10"
             >
               <motion.div 
                 variants={scaleIn}
-                className="bg-[#2E2E30] rounded-xl p-4"
+                className="bg-[#2E2E30] glass glass-p rounded-xl p-4"
+                style={{padding:"10px",boxShadow:"none"}}
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold flex items-center text-[#FFFFFF]">
                     <motion.div
                       animate={{ 
-                        color: [
+                        background: [
                           "#FF007F", 
                           "#FF2FB3", 
                           "#FF5A2A", 
@@ -1106,8 +1107,9 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                         ]
                       }}
                       transition={{ duration: 3, repeat: Infinity }}
+                      className='rounded-full p-[1px] mr-1.5'
                     >
-                      <HiSparkles className="mr-2" />
+                      <Image src='/agent/agentlogo.png' alt='logo' width={30} height={30}/>
                     </motion.div>
                     AI Analysis
                   </h3>
@@ -1116,7 +1118,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={copyAnalysis}
-                      className="bg-[#6C00B8]/30 text-[#6C00B8] p-2 rounded-lg"
+                      className="bg-[#6C00B8]/30 text-white p-2 rounded-lg"
                     >
                       <FaCopy className="text-xs" />
                     </motion.button>
@@ -1131,7 +1133,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   </div>
                 </div>
 
-                <div className="bg-[#0B0C10] rounded-lg p-3 max-h-80 overflow-y-auto">
+                <div className="bg-[#0B0C10] glass-light rounded-lg p-3 max-h-80 overflow-y-auto">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
