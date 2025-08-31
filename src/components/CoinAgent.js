@@ -1163,7 +1163,8 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   whileTap={{ scale: 0.98 }}
                   onClick={() => analyzePortfolioWithAI()}
                   disabled={analyzingPortfolio}
-                  className="bg-gradient-to-r from-[#FF007F] to-[#FF2FB3] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center text-sm"
+                  className="bg-gradient-to-r glass-button from-[#FF007F] to-[#FF2FB3] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center text-sm"
+                  style={{boxShadow:"none"}}
                 >
                   <FaSync className="mr-2" />
                   Refresh AI Analysis
@@ -1173,7 +1174,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setStep(2)}
-                    className="bg-[#2E2E30] text-[#FFFFFF] font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center text-sm"
+                    className="bg-[#2E2E30] glass-light text-[#FFFFFF] font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center text-sm"
                   >
                     <FaEye className="mr-2" />
                     Portfolio
@@ -1183,7 +1184,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                     whileTap={{ scale: 0.98 }}
                     onClick={refreshData}
                     disabled={!isConnected}
-                    className="bg-[#6C00B8]/30 text-[#6C00B8] font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center text-sm"
+                    className="bg-[#6C00B8]/30 glass-dark text-[#6C00B8] font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center text-sm"
                   >
                     <FaDatabase className="mr-2" />
                     Sync Data
