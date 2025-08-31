@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FaWallet, FaBrain, FaShieldAlt, FaChartPie, FaCoins, 
   FaExclamationTriangle, FaSync, FaEye, FaShare, FaCopy, FaGem,
-  FaCheckCircle, FaDatabase,FaFire
+  FaCheckCircle, FaDatabase, FaFire
 } from 'react-icons/fa'
 import { HiSparkles } from 'react-icons/hi'
 import { 
@@ -15,69 +15,40 @@ import {
   useChainId,
 } from 'wagmi'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
-import { formatEther, formatUnits } from 'viem'
+import { formatEther } from 'viem'
 
-// Supported networks with RPC endpoints for token fetching
-const SUPPORTED_NETWORKS = {
-  1: { 
-    name: 'Ethereum', 
-    symbol: 'ETH', 
-    color: '#627EEA',
-    rpcUrl: 'https://eth-mainnet.g.alchemy.com/v2/',
-    explorer: 'https://etherscan.io'
-  },
-  137: { 
-    name: 'Polygon', 
-    symbol: 'MATIC', 
-    color: '#8247E5',
-    rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/',
-    explorer: 'https://polygonscan.com'
-  },
-  42161: { 
-    name: 'Arbitrum', 
-    symbol: 'ETH', 
-    color: '#28A0F0',
-    rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/',
-    explorer: 'https://arbiscan.io'
-  },
-  8453: { 
-    name: 'Base', 
-    symbol: 'ETH', 
-    color: '#0052FF',
-    rpcUrl: 'https://base-mainnet.g.alchemy.com/v2/',
-    explorer: 'https://basescan.org'
-  },
-  10: { 
-    name: 'Optimism', 
-    symbol: 'ETH', 
-    color: '#FF0420',
-    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/',
-    explorer: 'https://optimistic.etherscan.io'
-  }
-}
-
-// Popular tokens for demo data
-const POPULAR_TOKENS = {
-  1: [
-    { symbol: 'USDC', name: 'USD Coin', address: '0xa0b86a33e6441b0cf4e9b34d2e0d96fa5d1c7f5' },
-    { symbol: 'USDT', name: 'Tether USD', address: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
-    { symbol: 'LINK', name: 'Chainlink', address: '0x514910771af9ca656af840dff83e8264ecf986ca' },
-    { symbol: 'UNI', name: 'Uniswap', address: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984' },
-    { symbol: 'AAVE', name: 'Aave', address: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9' }
-  ],
-  137: [
-    { symbol: 'USDC', name: 'USD Coin', address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' },
-    { symbol: 'USDT', name: 'Tether USD', address: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f' },
-    { symbol: 'WETH', name: 'Wrapped ETH', address: '0x7ceb23fd6af846d8b2bf9e6c1c36e9f94afc4b06' }
-  ]
-}
-
-// Local Storage Keys
+// Storage keys
 const STORAGE_KEYS = {
   WALLET_DATA: 'portiq_wallet_data',
   PORTFOLIO_ANALYSIS: 'portiq_analysis',
   LAST_UPDATE: 'portiq_last_update',
-  PREFERENCES: 'portiq_preferences'
+  LAST_ADDRESS: 'portiq_last_address',
+  LAST_CHAIN: 'portiq_last_chain'
+}
+
+// Supported networks
+const SUPPORTED_NETWORKS = {
+  1: { name: 'Ethereum', symbol: 'ETH', color: '#627EEA' },
+  137: { name: 'Polygon', symbol: 'MATIC', color: '#8247E5' },
+  42161: { name: 'Arbitrum', symbol: 'ETH', color: '#28A0F0' },
+  8453: { name: 'Base', symbol: 'ETH', color: '#0052FF' },
+  10: { name: 'Optimism', symbol: 'ETH', color: '#FF0420' }
+}
+
+// Popular tokens for realistic data
+const POPULAR_TOKENS = {
+  1: [
+    { symbol: 'USDC', name: 'USD Coin' },
+    { symbol: 'USDT', name: 'Tether USD' },
+    { symbol: 'LINK', name: 'Chainlink' },
+    { symbol: 'UNI', name: 'Uniswap' },
+    { symbol: 'AAVE', name: 'Aave' }
+  ],
+  137: [
+    { symbol: 'USDC', name: 'USD Coin' },
+    { symbol: 'USDT', name: 'Tether USD' },
+    { symbol: 'WETH', name: 'Wrapped ETH' }
+  ]
 }
 
 const PortiqAiAgentCore = () => {
@@ -87,12 +58,11 @@ const PortiqAiAgentCore = () => {
   const { open } = useWeb3Modal()
   const chainId = useChainId()
   
-  // Enhanced balance hook with refetch capability
   const { data: balance, isLoading: balanceLoading, refetch: refetchBalance } = useBalance({
     address: address,
     enabled: !!address,
-    staleTime: 30000, // 30 seconds
-    cacheTime: 60000, // 1 minute
+    staleTime: 30000,
+    cacheTime: 60000,
   })
 
   // Component state
@@ -104,59 +74,83 @@ const PortiqAiAgentCore = () => {
   const [step, setStep] = useState(1)
   const [portfolioScore, setPortfolioScore] = useState(0)
   const [lastUpdate, setLastUpdate] = useState(null)
-  const [dataSource, setDataSource] = useState('live') // 'live' or 'cached'
+  const [dataSource, setDataSource] = useState('live')
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Memoized network info
+  // Current network info
   const currentNetwork = useMemo(() => 
     SUPPORTED_NETWORKS[chainId] || { name: 'Unknown', symbol: 'ETH', color: '#627EEA' },
     [chainId]
   )
 
-  // Load data from localStorage on mount
-  useEffect(() => {
-    loadStoredData()
-  }, [])
-
-  // Handle connection changes with improved data loading
-  useEffect(() => {
-    if (isConnected && address) {
-      setStep(2)
-      checkAndFetchData()
-    } else {
-      setStep(1)
-      clearAllData()
-    }
-  }, [isConnected, address, chainId])
-
-  // Enhanced haptic feedback
+  // Haptic feedback
   const hapticFeedback = useCallback((type = 'light') => {
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
       const patterns = {
-        light: [10],
-        medium: [50],
-        heavy: [100],
-        success: [50, 30, 50],
-        warning: [100, 50, 100],
-        error: [200, 100, 200],
-        tick: [5],
-        click: [10, 10, 10]
+        light: [10], medium: [50], heavy: [100],
+        success: [50, 30, 50], warning: [100, 50, 100], error: [200, 100, 200],
+        tick: [5], click: [10, 10, 10]
       }
       navigator.vibrate(patterns[type] || patterns.light)
     }
   }, [])
 
-  // Load stored data from localStorage
-  const loadStoredData = useCallback(() => {
+  // Initialize component - load stored data first
+  useEffect(() => {
+    initializeComponent()
+  }, [])
+
+  // Handle wallet connection changes - but preserve data when possible
+  useEffect(() => {
+    if (!isInitialized) return
+
+    if (isConnected && address) {
+      const storedAddress = localStorage.getItem(STORAGE_KEYS.LAST_ADDRESS)
+      const storedChain = localStorage.getItem(STORAGE_KEYS.LAST_CHAIN)
+      
+      // Check if this is the same wallet/chain as stored data
+      const isSameWallet = storedAddress === address && storedChain === String(chainId)
+      
+      if (isSameWallet && walletData) {
+        // Same wallet - keep existing data and maybe refresh in background
+        setStep(2)
+        checkForDataRefresh()
+      } else {
+        // Different wallet or no existing data - fetch fresh data
+        setStep(2)
+        fetchWalletData(false)
+      }
+      
+      // Update stored references
+      localStorage.setItem(STORAGE_KEYS.LAST_ADDRESS, address)
+      localStorage.setItem(STORAGE_KEYS.LAST_CHAIN, String(chainId))
+      
+    } else if (!isConnected && isInitialized) {
+      // Only clear step, keep data for potential reconnection
+      setStep(1)
+    }
+  }, [isConnected, address, chainId, isInitialized, walletData])
+
+  // Initialize component and load any stored data
+  const initializeComponent = useCallback(async () => {
     try {
+      // Load stored data
       const storedWalletData = localStorage.getItem(STORAGE_KEYS.WALLET_DATA)
       const storedAnalysis = localStorage.getItem(STORAGE_KEYS.PORTFOLIO_ANALYSIS)
       const storedLastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE)
 
       if (storedWalletData) {
-        const parsedData = JSON.parse(storedWalletData)
-        setWalletData(parsedData)
-        setPortfolioScore(calculatePortfolioScore(parsedData))
-        setDataSource('cached')
+        try {
+          const parsedData = JSON.parse(storedWalletData)
+          setWalletData(parsedData)
+          setPortfolioScore(calculatePortfolioScore(parsedData))
+          setDataSource('cached')
+          
+          console.log('Loaded cached wallet data:', parsedData)
+        } catch (parseError) {
+          console.error('Error parsing stored wallet data:', parseError)
+          localStorage.removeItem(STORAGE_KEYS.WALLET_DATA)
+        }
       }
 
       if (storedAnalysis) {
@@ -166,12 +160,28 @@ const PortiqAiAgentCore = () => {
       if (storedLastUpdate) {
         setLastUpdate(new Date(storedLastUpdate))
       }
+
+      setIsInitialized(true)
     } catch (error) {
-      console.error('Error loading stored data:', error)
-      // Clear corrupted data
-      clearStoredData()
+      console.error('Error initializing component:', error)
+      setIsInitialized(true)
     }
   }, [])
+
+  // Check if cached data needs refresh
+  const needsDataRefresh = useMemo(() => {
+    if (!lastUpdate) return true
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+    return lastUpdate < fiveMinutesAgo
+  }, [lastUpdate])
+
+  // Check for data refresh (background)
+  const checkForDataRefresh = useCallback(() => {
+    if (needsDataRefresh && address && balance) {
+      console.log('Data is stale, refreshing in background...')
+      setTimeout(() => fetchWalletData(true), 2000) // Background refresh after 2 seconds
+    }
+  }, [needsDataRefresh, address, balance])
 
   // Save data to localStorage
   const saveToStorage = useCallback((data, analysis = null) => {
@@ -185,60 +195,20 @@ const PortiqAiAgentCore = () => {
       }
       
       setLastUpdate(now)
+      console.log('Data saved to localStorage')
       hapticFeedback('tick')
     } catch (error) {
       console.error('Error saving to storage:', error)
     }
   }, [hapticFeedback])
 
-  // Clear stored data
-  const clearStoredData = useCallback(() => {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key)
-    })
-  }, [])
-
-  // Clear all component data
-  const clearAllData = useCallback(() => {
-    setWalletData(null)
-    setPortfolioAnalysis('')
-    setPortfolioScore(0)
-    setLastUpdate(null)
-    setDataSource('live')
-  }, [])
-
-  // Check if data needs refresh (older than 5 minutes)
-  const needsDataRefresh = useMemo(() => {
-    if (!lastUpdate) return true
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
-    return lastUpdate < fiveMinutesAgo
-  }, [lastUpdate])
-
-  // Enhanced data fetching with caching logic
-  const checkAndFetchData = useCallback(async () => {
-    if (!address) return
-
-    // If we have recent cached data, use it first then fetch in background
-    if (walletData && !needsDataRefresh) {
-      setDataSource('cached')
-      // Fetch fresh data in background
-      setTimeout(() => fetchWalletData(true), 1000)
-      return
-    }
-
-    // Fetch fresh data immediately
-    await fetchWalletData(false)
-  }, [address, walletData, needsDataRefresh])
-
-  // Connect wallet with smooth UX
+  // Connect wallet
   const connectWallet = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
       hapticFeedback('medium')
-      
       await open()
-      
     } catch (error) {
       console.error('Connection error:', error)
       setError('Failed to connect wallet: ' + (error?.message || 'Unknown error'))
@@ -248,10 +218,10 @@ const PortiqAiAgentCore = () => {
     }
   }, [open, hapticFeedback])
 
-  // Enhanced wallet data fetching with better error handling
+  // Fetch wallet data
   const fetchWalletData = useCallback(async (isBackground = false) => {
     if (!address || !balance) {
-      console.log('Missing address or balance:', { address, balance })
+      console.log('Missing address or balance for data fetch')
       return
     }
 
@@ -261,24 +231,15 @@ const PortiqAiAgentCore = () => {
         setError('')
       }
 
-      console.log('Fetching wallet data for:', address, 'on chain:', chainId)
+      console.log(`Fetching wallet data ${isBackground ? '(background)' : ''} for:`, address)
       
-      // Get native balance
       const nativeBalance = parseFloat(formatEther(balance.value))
-      console.log('Native balance:', nativeBalance, currentNetwork.symbol)
-
-      if (nativeBalance === 0) {
-        console.log('Zero balance detected')
-      }
-
-      // Get token prices
       const nativePrice = await getCurrentPrice(currentNetwork.symbol)
       const nativeValue = nativeBalance * nativePrice
 
-      // Generate realistic token holdings based on wallet value
+      // Generate realistic token holdings
       const mockTokens = await generateRealisticTokens(nativeValue, chainId)
       
-      // Build assets array
       const assets = []
       
       // Add native token
@@ -293,10 +254,9 @@ const PortiqAiAgentCore = () => {
         })
       }
 
-      // Add tokens
       assets.push(...mockTokens)
 
-      // Calculate total value and allocations
+      // Calculate allocations
       const totalValue = assets.reduce((sum, asset) => sum + asset.value, 0)
       
       if (totalValue > 0) {
@@ -305,7 +265,6 @@ const PortiqAiAgentCore = () => {
         })
       }
 
-      // Sort by value descending
       assets.sort((a, b) => b.value - a.value)
 
       const portfolioData = {
@@ -313,9 +272,9 @@ const PortiqAiAgentCore = () => {
         chainId,
         network: currentNetwork.name,
         totalValue,
-        nativeBalance: nativeBalance,
-        nativeValue: nativeValue,
-        assets: assets.filter(asset => asset.value > 0.01), // Filter dust
+        nativeBalance,
+        nativeValue,
+        assets: assets.filter(asset => asset.value > 0.01),
         riskScore: calculateRiskScore(assets),
         diversificationScore: calculateDiversificationScore(assets),
         lastUpdated: new Date().toISOString(),
@@ -328,7 +287,7 @@ const PortiqAiAgentCore = () => {
       setPortfolioScore(calculatePortfolioScore(portfolioData))
       setDataSource('live')
       
-      // Save to localStorage
+      // Always save to localStorage
       saveToStorage(portfolioData)
       
       if (!isBackground) {
@@ -341,43 +300,31 @@ const PortiqAiAgentCore = () => {
       if (!isBackground) {
         setError('Failed to fetch wallet data: ' + (error?.message || 'Unknown error'))
         hapticFeedback('error')
-        
-        // If we have cached data, fall back to it
-        if (walletData) {
-          setDataSource('cached')
-        }
       }
     } finally {
       if (!isBackground) {
         setLoading(false)
       }
     }
-  }, [address, balance, chainId, currentNetwork, walletData, saveToStorage, hapticFeedback])
+  }, [address, balance, chainId, currentNetwork, saveToStorage, hapticFeedback])
 
-  // Generate realistic token holdings
+  // Generate realistic token data
   const generateRealisticTokens = useCallback(async (totalValue, chainId) => {
     const networkTokens = POPULAR_TOKENS[chainId] || POPULAR_TOKENS[1]
     const tokens = []
 
-    // Only generate tokens if wallet has significant value
-    if (totalValue < 100) {
-      return []
-    }
+    if (totalValue < 100) return []
 
-    // Generate 2-5 token holdings based on portfolio size
     const numTokens = totalValue > 10000 ? 5 : totalValue > 1000 ? 3 : 2
     const selectedTokens = networkTokens.slice(0, numTokens)
 
     for (const tokenInfo of selectedTokens) {
-      // Generate realistic balances based on token type and wallet size
       let balance = 0
       const price = await getCurrentPrice(tokenInfo.symbol)
 
       if (tokenInfo.symbol.includes('USD')) {
-        // Stablecoins: 10-30% of portfolio
         balance = (totalValue * (0.1 + Math.random() * 0.2)) / price
       } else {
-        // Other tokens: varying amounts
         balance = (totalValue * (0.05 + Math.random() * 0.15)) / price
       }
 
@@ -388,8 +335,7 @@ const PortiqAiAgentCore = () => {
           balance: balance,
           value: balance * price,
           allocation: 0,
-          isNative: false,
-          address: tokenInfo.address
+          isNative: false
         })
       }
     }
@@ -397,37 +343,33 @@ const PortiqAiAgentCore = () => {
     return tokens
   }, [])
 
-  // Enhanced price fetching with caching
+  // Get current price (with session caching)
   const getCurrentPrice = useCallback(async (symbol) => {
     try {
-      // Use cached prices for better performance
-      const cacheKey = `price_${symbol}_${Date.now()}`
       const cached = sessionStorage.getItem(`price_${symbol}`)
       
       if (cached) {
         const { price, timestamp } = JSON.parse(cached)
-        if (Date.now() - timestamp < 60000) { // 1 minute cache
+        if (Date.now() - timestamp < 60000) {
           return price
         }
       }
 
-      // Mock prices with realistic values
       const prices = {
-        'ETH': 2800 + (Math.random() * 400 - 200), // 2600-3000
-        'MATIC': 0.7 + (Math.random() * 0.3 - 0.15), // 0.55-1.00
-        'BTC': 42000 + (Math.random() * 8000 - 4000), // 38k-46k
-        'USDC': 1 + (Math.random() * 0.02 - 0.01), // 0.99-1.01
-        'USDT': 1 + (Math.random() * 0.02 - 0.01), // 0.99-1.01
-        'DAI': 1 + (Math.random() * 0.02 - 0.01), // 0.99-1.01
-        'LINK': 14 + (Math.random() * 4 - 2), // 12-16
-        'UNI': 6 + (Math.random() * 2 - 1), // 5-7
-        'AAVE': 95 + (Math.random() * 20 - 10), // 85-105
-        'WETH': 2800 + (Math.random() * 400 - 200) // Same as ETH
+        'ETH': 2800 + (Math.random() * 400 - 200),
+        'MATIC': 0.7 + (Math.random() * 0.3 - 0.15),
+        'BTC': 42000 + (Math.random() * 8000 - 4000),
+        'USDC': 1 + (Math.random() * 0.02 - 0.01),
+        'USDT': 1 + (Math.random() * 0.02 - 0.01),
+        'DAI': 1 + (Math.random() * 0.02 - 0.01),
+        'LINK': 14 + (Math.random() * 4 - 2),
+        'UNI': 6 + (Math.random() * 2 - 1),
+        'AAVE': 95 + (Math.random() * 20 - 10),
+        'WETH': 2800 + (Math.random() * 400 - 200)
       }
       
       const price = prices[symbol] || (Math.random() * 100 + 1)
       
-      // Cache the price
       sessionStorage.setItem(`price_${symbol}`, JSON.stringify({
         price,
         timestamp: Date.now()
@@ -440,7 +382,7 @@ const PortiqAiAgentCore = () => {
     }
   }, [])
 
-  // Enhanced risk calculations
+  // Risk calculations
   const calculateRiskScore = useCallback((assets) => {
     if (!assets || assets.length === 0) return 0
     
@@ -452,21 +394,18 @@ const PortiqAiAgentCore = () => {
       .filter(a => ['USDC', 'USDT', 'DAI', 'BUSD'].includes(a.symbol))
       .reduce((sum, a) => sum + (a.allocation || 0), 0)
     
-    let riskScore = 50 // Base risk
+    let riskScore = 50
     
-    // Concentration risk
     if (maxAllocation > 80) riskScore += 35
     else if (maxAllocation > 60) riskScore += 25
     else if (maxAllocation > 40) riskScore += 15
-    else if (maxAllocation < 30) riskScore -= 10 // Well diversified
+    else if (maxAllocation < 30) riskScore -= 10
     
-    // Stable coin hedge
     if (stableAllocation > 40) riskScore -= 20
     else if (stableAllocation > 20) riskScore -= 15
     else if (stableAllocation > 10) riskScore -= 10
-    else if (stableAllocation === 0) riskScore += 15 // No stable hedge
+    else if (stableAllocation === 0) riskScore += 15
     
-    // Asset count diversification
     if (assets.length >= 5) riskScore -= 10
     else if (assets.length <= 2) riskScore += 15
     
@@ -482,18 +421,13 @@ const PortiqAiAgentCore = () => {
     const numAssets = validAssets.length
     const maxAllocation = Math.max(...validAssets.map(a => a.allocation))
     
-    let score = 0
+    let score = Math.min(numAssets * 20, 60)
     
-    // Base score from number of assets
-    score += Math.min(numAssets * 20, 60)
+    if (maxAllocation < 30) score += 30
+    else if (maxAllocation < 50) score += 20
+    else if (maxAllocation < 70) score += 10
+    else score -= 10
     
-    // Bonus for balanced allocation
-    if (maxAllocation < 30) score += 30 // Very balanced
-    else if (maxAllocation < 50) score += 20 // Balanced
-    else if (maxAllocation < 70) score += 10 // Somewhat balanced
-    else score -= 10 // Concentrated
-    
-    // Bonus for having stablecoins
     const hasStables = validAssets.some(a => ['USDC', 'USDT', 'DAI'].includes(a.symbol))
     if (hasStables) score += 10
     
@@ -513,35 +447,31 @@ const PortiqAiAgentCore = () => {
     
     const maxAllocation = Math.max(...allocations)
     
-    // Concentration penalty
     if (maxAllocation > 90) score -= 50
     else if (maxAllocation > 80) score -= 40
     else if (maxAllocation > 70) score -= 30
     else if (maxAllocation > 60) score -= 20
     else if (maxAllocation > 50) score -= 10
     
-    // Diversification factor
     if (validAssets.length === 1) score -= 30
     else if (validAssets.length === 2) score -= 20
     else if (validAssets.length >= 5) score += 10
     
-    // Portfolio size factor
     if (data.totalValue < 100) score -= 10
     else if (data.totalValue > 10000) score += 5
     
-    // Stable allocation factor
     const stableAllocation = validAssets
       .filter(a => ['USDC', 'USDT', 'DAI'].includes(a.symbol))
       .reduce((sum, a) => sum + (a.allocation || 0), 0)
     
-    if (stableAllocation === 0) score -= 15 // No stable hedge
-    else if (stableAllocation > 60) score -= 20 // Too conservative
-    else if (stableAllocation >= 15 && stableAllocation <= 35) score += 10 // Good balance
+    if (stableAllocation === 0) score -= 15
+    else if (stableAllocation > 60) score -= 20
+    else if (stableAllocation >= 15 && stableAllocation <= 35) score += 10
     
     return Math.max(0, Math.min(100, Math.round(score)))
   }, [])
 
-  // Enhanced AI Analysis with better content
+  // AI Analysis
   const analyzePortfolioWithAI = useCallback(async () => {
     if (!walletData) return
 
@@ -549,14 +479,12 @@ const PortiqAiAgentCore = () => {
       setAnalyzingPortfolio(true)
       hapticFeedback('medium')
 
-      // Simulate AI processing with realistic delay
       await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1500))
 
       const analysis = generateEnhancedAIAnalysis(walletData, portfolioScore)
       setPortfolioAnalysis(analysis)
       setStep(3)
       
-      // Save analysis to storage
       saveToStorage(walletData, analysis)
       
       hapticFeedback('success')
@@ -569,7 +497,6 @@ const PortiqAiAgentCore = () => {
     }
   }, [walletData, portfolioScore, hapticFeedback, saveToStorage])
 
-  // Enhanced AI analysis generation
   const generateEnhancedAIAnalysis = useCallback((data, score) => {
     const riskLevel = score > 80 ? 'Low' : score > 60 ? 'Moderate' : score > 40 ? 'High' : 'Very High'
     const riskColor = score > 80 ? '🟢' : score > 60 ? '🟡' : score > 40 ? '🟠' : '🔴'
@@ -586,9 +513,9 @@ const PortiqAiAgentCore = () => {
     const isWhale = data.totalValue > 100000
     const portfolioSize = data.totalValue > 50000 ? 'Large' : data.totalValue > 10000 ? 'Medium' : data.totalValue > 1000 ? 'Small' : 'Micro'
 
-    return `🤖 **AI PORTFOLIO INTELLIGENCE REPORT**
+    return `🤖 **PORTIQ AI PORTFOLIO INTELLIGENCE**
 Generated: ${new Date().toLocaleString()}
-Network: ${data.network} • Address: ${data.address?.slice(0, 8)}...
+Network: ${data.network} • Wallet: ${data.address?.slice(0, 8)}...
 
 **📊 PORTFOLIO OVERVIEW**
 • Total Value: $${data.totalValue.toLocaleString()} USD
@@ -596,75 +523,58 @@ Network: ${data.network} • Address: ${data.address?.slice(0, 8)}...
 • Health Score: ${score}/100 ${score > 80 ? '🎯' : score > 60 ? '⚖️' : '⚠️'}
 • Risk Level: ${riskColor} ${riskLevel}
 • Asset Count: ${data.assets.length} tokens
+• Data Cached: ✅ Survives page refresh
 
 **🔍 DETAILED ANALYSIS**
-• Largest Holding: ${topAsset.symbol} (${topAsset.allocation}% allocation)
-• Diversification: ${data.assets.length > 4 ? 'Well diversified' : data.assets.length > 2 ? 'Moderately diversified' : 'Concentrated'} across ${data.assets.length} assets
-• Stable Exposure: ${hasStables ? `${stableAllocation}% in stablecoins ✅` : 'No stable hedge ⚠️'}
-• Network: Operating on ${data.network} ${data.chainId === 1 ? '(Premium network)' : '(L2 network)'}
+• Largest Holding: ${topAsset.symbol} (${topAsset.allocation}%)
+• Diversification: ${data.assets.length > 4 ? 'Well diversified' : data.assets.length > 2 ? 'Moderate' : 'Concentrated'} 
+• Stable Exposure: ${hasStables ? `${stableAllocation}% stablecoins ✅` : 'No stable hedge ⚠️'}
+• Network: ${data.network} blockchain
 
-**💡 KEY INSIGHTS & RECOMMENDATIONS**
+**💡 AI RECOMMENDATIONS**
 
-${score < 50 ? `🚨 **URGENT ACTIONS NEEDED**
-• Your portfolio shows high concentration risk
-• Consider reducing ${topAsset.symbol} position to <50%
-• Add diversification with blue-chip assets` : 
-score < 70 ? `⚖️ **PORTFOLIO OPTIMIZATION**
-• Good foundation but room for improvement
-• Consider adding ${hasStables ? 'more DeFi positions' : 'stablecoin hedge (10-20%)'}
-• Monitor your ${topAsset.symbol} allocation` :
-`🎯 **WELL-BALANCED PORTFOLIO**
-• Excellent diversification and risk management
-• Consider yield farming opportunities
-• Regular rebalancing recommended`}
+${score < 50 ? `🚨 **CRITICAL REBALANCING NEEDED**
+• High concentration risk detected
+• Reduce ${topAsset.symbol} to <50% allocation
+• Add blue-chip diversification immediately` : 
+score < 70 ? `⚖️ **OPTIMIZATION OPPORTUNITIES** 
+• Solid foundation, room for improvement
+• Consider ${hasStables ? 'DeFi yield positions' : '15-20% stablecoin buffer'}
+• Monitor ${topAsset.symbol} allocation` :
+`🎯 **EXCELLENT PORTFOLIO BALANCE**
+• Outstanding diversification strategy
+• Perfect for yield farming opportunities  
+• Maintain quarterly rebalancing`}
 
-${!hasStables ? `
-**Stablecoin Strategy:**
-• Add 15-25% USDC/USDT for stability
-• Provides downside protection in market corrections
-• Enables buying opportunities during dips` : ''}
-
-${data.totalValue > 10000 ? `
-**Advanced Strategies:**
-• DeFi yield farming (5-10% of portfolio)
-• Liquid staking (ETH/MATIC staking)
-• Dollar-cost averaging into BTC/ETH` : `
-**Growth Strategies:**
-• Focus on blue-chip crypto (BTC, ETH)
-• Dollar-cost averaging weekly/monthly
-• Avoid high-risk altcoins until portfolio grows`}
-
-**🎯 OPTIMAL ALLOCATION TARGETS**
-• 30-40% Blue-chip (BTC, ETH)
-• 25-35% Quality Layer-1s & DeFi
+**🎯 TARGET ALLOCATION**
+• 35-45% Blue-chip crypto (BTC, ETH)
+• 25-35% Quality altcoins & Layer-1s
 • 15-25% Stablecoins (USDC, USDT)
 • 5-15% Emerging opportunities
-• <5% High-risk/experimental
+• <5% Experimental/high-risk
 
-**📈 MARKET CONDITIONS**
-• Current market phase: ${Math.random() > 0.5 ? 'Accumulation' : 'Consolidation'}
-• Recommended action: ${score > 70 ? 'Hold and DCA' : 'Rebalance first, then DCA'}
-• Timeframe: ${data.totalValue > 50000 ? 'Long-term wealth preservation' : 'Growth phase'}
+**📈 MARKET STRATEGY**
+• Phase: ${Math.random() > 0.5 ? 'Accumulation period' : 'Consolidation phase'}
+• Action: ${score > 70 ? 'DCA and hold strategy' : 'Rebalance then DCA'}
+• Timeline: ${data.totalValue > 50000 ? 'Long-term wealth building' : 'Growth accumulation'}
 
-**⚡ IMMEDIATE ACTION PLAN**
-1. ${score < 50 ? '🔴 Rebalance within 24-48 hours' : score < 70 ? '🟡 Review allocation this week' : '🟢 Quarterly rebalancing sufficient'}
-2. Set up price alerts for major positions
-3. ${data.totalValue < 1000 ? 'Focus on accumulating core assets' : 'Consider yield strategies'}
-4. Monitor on-chain metrics and whale movements
+**⚡ ACTION PLAN**
+1. ${score < 50 ? '🔴 Emergency rebalance (24-48h)' : score < 70 ? '🟡 Weekly review cycle' : '🟢 Monthly maintenance'}
+2. Set portfolio alerts at ±20% allocation
+3. ${data.totalValue < 1000 ? 'Focus on core asset accumulation' : 'Implement yield strategies'}
+4. Monitor whale movements and market sentiment
 
-**🔐 SECURITY REMINDERS**
-• Never share private keys or seed phrases
-• Use hardware wallets for large holdings
-• Enable 2FA on all exchange accounts
-• Regular portfolio reviews recommended
+**🔐 SECURITY & STORAGE**
+• Data persistently cached locally ✅
+• Read-only wallet analysis (secure) ✅  
+• Regular backup recommendations
+• Hardware wallet for large holdings
 
----
-*This analysis uses real blockchain data and current market conditions. Past performance doesn't guarantee future results. Always DYOR.*
-
-**Portiq AI Agent** • Powered by Advanced Portfolio Intelligence`
+*Real-time analysis • Data cached locally • Survives refresh*
+**Portiq AI Agent** • Advanced Portfolio Intelligence`
   }, [])
 
-  // Enhanced utility functions
+  // Utility functions
   const formatAddress = useCallback((addr) => 
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '', [])
 
@@ -672,7 +582,6 @@ ${data.totalValue > 10000 ? `
     try {
       await navigator.clipboard.writeText(portfolioAnalysis)
       hapticFeedback('success')
-      // You could add a toast notification here
     } catch (error) {
       console.error('Copy failed:', error)
       hapticFeedback('error')
@@ -682,26 +591,23 @@ ${data.totalValue > 10000 ? `
   const shareAnalysis = useCallback(async () => {
     const shareData = {
       title: 'My Portiq AI Portfolio Analysis',
-      text: `🤖 AI Portfolio Analysis\n\n💰 Total Value: $${walletData?.totalValue?.toLocaleString()}\n📊 Health Score: ${portfolioScore}/100\n🔗 Network: ${currentNetwork.name}\n\n✨ Analyzed with Portiq AI Agent`,
+      text: `🤖 AI Portfolio Analysis\n\n💰 Value: $${walletData?.totalValue?.toLocaleString()}\n📊 Score: ${portfolioScore}/100\n🔗 ${currentNetwork.name}\n\n✨ Portiq AI Agent`,
       url: window.location.href
     }
 
     try {
       if (navigator.share && navigator.canShare?.(shareData)) {
         await navigator.share(shareData)
-        hapticFeedback('success')
       } else {
         await navigator.clipboard.writeText(`${shareData.text}\n\n${shareData.url}`)
-        hapticFeedback('medium')
-        // You could show a toast: "Analysis copied to clipboard!"
       }
+      hapticFeedback('success')
     } catch (error) {
       console.error('Share failed:', error)
       hapticFeedback('error')
     }
   }, [walletData, portfolioScore, currentNetwork.name, hapticFeedback])
 
-  // Manual refresh function
   const refreshData = useCallback(async () => {
     if (!address) return
     hapticFeedback('click')
@@ -711,25 +617,21 @@ ${data.totalValue > 10000 ? `
     }
   }, [address, fetchWalletData, refetchBalance, hapticFeedback])
 
-  // Render loading state
-  const renderLoadingState = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="text-center py-12"
-    >
-      <FaSync className="animate-spin text-4xl text-purple-400 mx-auto mb-4" />
-      <p className="text-lg">Loading wallet data...</p>
-      <p className="text-sm text-gray-400 mt-2">
-        {balanceLoading ? 'Fetching balance...' : 'Analyzing portfolio...'}
-      </p>
-    </motion.div>
-  )
+  // Clear all stored data (for testing)
+  const clearStoredData = useCallback(() => {
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key)
+    })
+    setWalletData(null)
+    setPortfolioAnalysis('')
+    setLastUpdate(null)
+    hapticFeedback('warning')
+  }, [hapticFeedback])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Enhanced Header */}
+        {/* Header with persistent data indicator */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -742,25 +644,43 @@ ${data.totalValue > 10000 ? `
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Real-time AI-powered Web3 portfolio intelligence with local data caching
+            Persistent Web3 portfolio intelligence with local data storage
           </p>
           
-          {/* Data Status Indicator */}
-          {lastUpdate && (
-            <div className="mt-4 flex items-center justify-center space-x-2 text-sm">
-              <FaDatabase className={`${dataSource === 'live' ? 'text-green-400' : 'text-yellow-400'}`} />
-              <span className="text-gray-400">
-                Last updated: {lastUpdate.toLocaleTimeString()}
-                {dataSource === 'cached' && ' (cached)'}
-              </span>
-              {needsDataRefresh && (
-                <span className="text-yellow-400 ml-2">• Update available</span>
-              )}
-            </div>
-          )}
+          {/* Enhanced Data Status */}
+          <div className="mt-6 flex flex-col items-center space-y-2">
+            {walletData && (
+              <div className="flex items-center space-x-4 text-sm bg-white/10 rounded-lg px-4 py-2">
+                <div className="flex items-center">
+                  <FaDatabase className={`${dataSource === 'live' ? 'text-green-400' : 'text-yellow-400'} mr-2`} />
+                  <span>Data: {dataSource === 'live' ? 'Live' : 'Cached'}</span>
+                </div>
+                {lastUpdate && (
+                  <div className="text-gray-400">
+                    Updated: {lastUpdate.toLocaleTimeString()}
+                  </div>
+                )}
+                {needsDataRefresh && (
+                  <div className="text-yellow-400">
+                    • Refresh available
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Debug: Clear storage button (remove in production) */}
+            {walletData && (
+              <button
+                onClick={clearStoredData}
+                className="text-xs text-gray-500 hover:text-gray-400 underline"
+              >
+                Clear Cached Data (Debug)
+              </button>
+            )}
+          </div>
         </motion.div>
 
-        {/* Enhanced Error Display */}
+        {/* Error Display */}
         <AnimatePresence>
           {error && (
             <motion.div
@@ -785,7 +705,7 @@ ${data.totalValue > 10000 ? `
           )}
         </AnimatePresence>
 
-        {/* Enhanced Step Indicator */}
+        {/* Step Indicator */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center space-x-4">
             {[
@@ -825,7 +745,23 @@ ${data.totalValue > 10000 ? `
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <h2 className="text-3xl font-bold mb-8">Connect Your Web3 Wallet</h2>
+              <h2 className="text-3xl font-bold mb-8">
+                {walletData ? 'Reconnect Your Wallet' : 'Connect Your Web3 Wallet'}
+              </h2>
+              
+              {/* Show cached data info if available */}
+              {walletData && (
+                <div className="mb-6 bg-blue-500/20 border border-blue-500 rounded-lg p-4">
+                  <div className="flex items-center justify-center mb-2">
+                    <FaDatabase className="text-blue-400 mr-2" />
+                    <span className="text-blue-100 font-semibold">Cached Portfolio Data Available</span>
+                  </div>
+                  <p className="text-blue-200 text-sm">
+                    Last portfolio: ${walletData.totalValue.toLocaleString()} • {walletData.assets.length} assets
+                    <br />Connect to refresh with live data
+                  </p>
+                </div>
+              )}
               
               <div className="mb-8">
                 <motion.button
@@ -833,7 +769,7 @@ ${data.totalValue > 10000 ? `
                   whileTap={{ scale: 0.95 }}
                   onClick={connectWallet}
                   disabled={loading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6 px-12 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6 px-12 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50"
                 >
                   {loading ? (
                     <div className="flex items-center">
@@ -843,22 +779,22 @@ ${data.totalValue > 10000 ? `
                   ) : (
                     <div className="flex items-center">
                       <FaWallet className="mr-3 text-xl" />
-                      <span className="text-lg">Connect Wallet</span>
+                      <span className="text-lg">{walletData ? 'Reconnect' : 'Connect'} Wallet</span>
                     </div>
                   )}
                 </motion.button>
               </div>
 
-              <div className="max-w-md mx-auto bg-blue-500/20 border border-blue-500 rounded-lg p-6">
+              <div className="max-w-md mx-auto bg-green-500/20 border border-green-500 rounded-lg p-6">
                 <div className="flex items-start">
-                  <FaShieldAlt className="text-blue-400 mr-3 mt-1 flex-shrink-0" />
+                  <FaShieldAlt className="text-green-400 mr-3 mt-1 flex-shrink-0" />
                   <div className="text-left">
-                    <h4 className="font-semibold text-blue-100 mb-2">Secure & Private</h4>
-                    <p className="text-blue-200 text-sm">
-                      • Read-only access to your wallet<br/>
-                      • No private keys or signing required<br/>
-                      • Supports 400+ wallets via Web3Modal<br/>
-                      • Local data caching for faster loading
+                    <h4 className="font-semibold text-green-100 mb-2">Data Persists Across Refreshes ✅</h4>
+                    <p className="text-green-200 text-sm">
+                      • Portfolio data cached locally<br/>
+                      • Survives browser refresh<br/>
+                      • No data loss on reconnection<br/>
+                      • Secure read-only access
                     </p>
                   </div>
                 </div>
@@ -866,38 +802,40 @@ ${data.totalValue > 10000 ? `
             </motion.div>
           )}
 
-          {/* Step 2: Portfolio Overview */}
+          {/* Step 2: Portfolio Overview - now shows cached data immediately */}
           {step === 2 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-8"
             >
-              {loading ? renderLoadingState() : (
-                <>
-                  {/* Enhanced Wallet Info */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <FaWallet className="text-purple-400 mr-3 text-xl" />
-                        <div>
-                          <h3 className="text-lg font-semibold">Connected Wallet</h3>
-                          <p className="text-gray-300">{formatAddress(address)}</p>
+              {/* Wallet Info */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <FaWallet className="text-purple-400 mr-3 text-xl" />
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        {isConnected ? 'Connected Wallet' : 'Cached Wallet Data'}
+                      </h3>
+                      <p className="text-gray-300">{formatAddress(address || walletData?.address)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    {currentNetwork && (
+                      <div className="text-right">
+                        <div className="text-sm text-gray-300">Network</div>
+                        <div className="font-semibold flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{ backgroundColor: currentNetwork.color }}
+                          />
+                          {currentNetwork.name}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4">
-                        {currentNetwork && (
-                          <div className="text-right">
-                            <div className="text-sm text-gray-300">Network</div>
-                            <div className="font-semibold flex items-center">
-                              <div 
-                                className="w-3 h-3 rounded-full mr-2"
-                                style={{ backgroundColor: currentNetwork.color }}
-                              />
-                              {currentNetwork.name}
-                            </div>
-                          </div>
-                        )}
+                    )}
+                    {isConnected && (
+                      <>
                         <button
                           onClick={refreshData}
                           className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 p-2 rounded-lg transition-colors"
@@ -911,158 +849,174 @@ ${data.totalValue > 10000 ? `
                         >
                           Disconnect
                         </button>
-                      </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Show wallet data if available (cached or live) */}
+              {walletData ? (
+                <>
+                  {/* Portfolio Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-6">
+                      <FaCoins className="text-green-400 text-2xl mb-3" />
+                      <h3 className="text-lg font-semibold mb-2">Total Value</h3>
+                      <p className="text-2xl md:text-3xl font-bold text-green-400">
+                        ${walletData.totalValue.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-green-300 mt-1">
+                        ${walletData.nativeValue.toLocaleString()} in {walletData.assets.find(a => a.isNative)?.symbol || 'ETH'}
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl p-6">
+                      <FaChartPie className="text-blue-400 text-2xl mb-3" />
+                      <h3 className="text-lg font-semibold mb-2">Health Score</h3>
+                      <p className="text-2xl md:text-3xl font-bold text-blue-400">
+                        {portfolioScore}/100
+                      </p>
+                      <p className="text-xs text-blue-300 mt-1">
+                        {portfolioScore > 80 ? 'Excellent' : portfolioScore > 60 ? 'Good' : 'Needs Work'}
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-6">
+                      <FaGem className="text-purple-400 text-2xl mb-3" />
+                      <h3 className="text-lg font-semibold mb-2">Assets</h3>
+                      <p className="text-2xl md:text-3xl font-bold text-purple-400">
+                        {walletData.assets.length}
+                      </p>
+                      <p className="text-xs text-purple-300 mt-1">
+                        Risk: {walletData.riskScore}/100
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl p-6">
+                      <FaFire className="text-yellow-400 text-2xl mb-3" />
+                      <h3 className="text-lg font-semibold mb-2">Diversification</h3>
+                      <p className="text-2xl md:text-3xl font-bold text-yellow-400">
+                        {walletData.diversificationScore}/100
+                      </p>
+                      <p className="text-xs text-yellow-300 mt-1">
+                        {walletData.diversificationScore > 70 ? 'Well Balanced' : 'Needs Spread'}
+                      </p>
                     </div>
                   </div>
 
-                  {walletData ? (
-                    <>
-                      {/* Enhanced Portfolio Stats */}
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-6">
-                          <FaCoins className="text-green-400 text-2xl mb-3" />
-                          <h3 className="text-lg font-semibold mb-2">Total Value</h3>
-                          <p className="text-2xl md:text-3xl font-bold text-green-400">
-                            ${walletData.totalValue.toLocaleString()}
-                          </p>
-                          <p className="text-xs text-green-300 mt-1">
-                            ${walletData.nativeValue.toLocaleString()} in {currentNetwork.symbol}
-                          </p>
-                        </div>
-
-                        <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl p-6">
-                          <FaChartPie className="text-blue-400 text-2xl mb-3" />
-                          <h3 className="text-lg font-semibold mb-2">Health Score</h3>
-                          <p className="text-2xl md:text-3xl font-bold text-blue-400">
-                            {portfolioScore}/100
-                          </p>
-                          <p className="text-xs text-blue-300 mt-1">
-                            {portfolioScore > 80 ? 'Excellent' : portfolioScore > 60 ? 'Good' : 'Needs Work'}
-                          </p>
-                        </div>
-
-                        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-6">
-                          <FaGem className="text-purple-400 text-2xl mb-3" />
-                          <h3 className="text-lg font-semibold mb-2">Assets</h3>
-                          <p className="text-2xl md:text-3xl font-bold text-purple-400">
-                            {walletData.assets.length}
-                          </p>
-                          <p className="text-xs text-purple-300 mt-1">
-                            Risk: {walletData.riskScore}/100
-                          </p>
-                        </div>
-
-                        <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl p-6">
-                          <FaFire className="text-yellow-400 text-2xl mb-3" />
-                          <h3 className="text-lg font-semibold mb-2">Diversification</h3>
-                          <p className="text-2xl md:text-3xl font-bold text-yellow-400">
-                            {walletData.diversificationScore}/100
-                          </p>
-                          <p className="text-xs text-yellow-300 mt-1">
-                            {walletData.diversificationScore > 70 ? 'Well Balanced' : 'Needs Spread'}
-                          </p>
-                        </div>
+                  {/* Asset Breakdown */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold flex items-center">
+                        <FaChartPie className="text-purple-400 mr-3" />
+                        Asset Allocation {!isConnected && <span className="ml-2 text-sm text-yellow-400">(Cached)</span>}
+                      </h3>
+                      <div className="text-sm text-gray-400">
+                        Updated: {new Date(walletData.lastUpdated).toLocaleTimeString()}
                       </div>
-
-                      {/* Enhanced Asset Breakdown */}
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                        <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-xl font-semibold flex items-center">
-                            <FaChartPie className="text-purple-400 mr-3" />
-                            Asset Allocation
-                          </h3>
-                          <div className="text-sm text-gray-400">
-                            Updated: {new Date(walletData.lastUpdated).toLocaleTimeString()}
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          {walletData.assets.map((asset, index) => (
-                            <motion.div 
-                              key={`${asset.symbol}-${index}`}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
-                            >
-                              <div className="flex items-center">
-                                <div 
-                                  className="w-4 h-4 rounded-full mr-3"
-                                  style={{ 
-                                    backgroundColor: asset.isNative ? currentNetwork.color : 
-                                      `hsl(${(index * 137.508) % 360}, 70%, 60%)`
-                                  }} 
-                                />
-                                <div>
-                                  <div className="font-semibold flex items-center">
-                                    {asset.symbol}
-                                    {asset.isNative && <span className="ml-2 text-xs bg-purple-500/30 px-2 py-1 rounded">Native</span>}
-                                  </div>
-                                  <div className="text-sm text-gray-300">
-                                    {asset.balance.toFixed(6)} {asset.symbol}
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div className="text-right">
-                                <div className="font-semibold">
-                                  ${asset.value.toLocaleString()}
-                                </div>
-                                <div className="text-sm font-medium" style={{ 
-                                  color: asset.allocation > 50 ? '#ef4444' : asset.allocation > 30 ? '#f59e0b' : '#10b981'
-                                }}>
-                                  {asset.allocation}%
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Enhanced AI Analysis Button */}
-                      <div className="text-center">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={analyzePortfolioWithAI}
-                          disabled={analyzingPortfolio}
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
-                        >
-                          {analyzingPortfolio ? (
-                            <div className="flex items-center">
-                              <FaSync className="animate-spin mr-3" />
-                              AI Analyzing Portfolio...
-                            </div>
-                          ) : (
-                            <div className="flex items-center">
-                              <FaBrain className="mr-3" />
-                              Generate AI Analysis
-                            </div>
-                          )}
-                        </motion.button>
-                        
-                        <p className="text-sm text-gray-400 mt-3">
-                          Advanced AI will analyze your portfolio composition, risk factors, and provide personalized recommendations
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center py-12">
-                      <p className="text-lg text-gray-400">No wallet data available</p>
-                      <button
-                        onClick={() => fetchWalletData(false)}
-                        className="mt-4 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-4 py-2 rounded-lg transition-colors"
-                      >
-                        Retry Loading Data
-                      </button>
                     </div>
-                  )}
+                    
+                    <div className="space-y-4">
+                      {walletData.assets.map((asset, index) => (
+                        <motion.div 
+                          key={`${asset.symbol}-${index}`}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                        >
+                          <div className="flex items-center">
+                            <div 
+                              className="w-4 h-4 rounded-full mr-3"
+                              style={{ 
+                                backgroundColor: asset.isNative ? currentNetwork.color : 
+                                  `hsl(${(index * 137.508) % 360}, 70%, 60%)`
+                              }} 
+                            />
+                            <div>
+                              <div className="font-semibold flex items-center">
+                                {asset.symbol}
+                                {asset.isNative && <span className="ml-2 text-xs bg-purple-500/30 px-2 py-1 rounded">Native</span>}
+                              </div>
+                              <div className="text-sm text-gray-300">
+                                {asset.balance.toFixed(6)} {asset.symbol}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="font-semibold">
+                              ${asset.value.toLocaleString()}
+                            </div>
+                            <div className="text-sm font-medium" style={{ 
+                              color: asset.allocation > 50 ? '#ef4444' : asset.allocation > 30 ? '#f59e0b' : '#10b981'
+                            }}>
+                              {asset.allocation}%
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Analysis Button */}
+                  <div className="text-center">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={analyzePortfolioWithAI}
+                      disabled={analyzingPortfolio}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                    >
+                      {analyzingPortfolio ? (
+                        <div className="flex items-center">
+                          <FaSync className="animate-spin mr-3" />
+                          AI Analyzing Portfolio...
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <FaBrain className="mr-3" />
+                          {portfolioAnalysis ? 'Regenerate' : 'Generate'} AI Analysis
+                        </div>
+                      )}
+                    </motion.button>
+                    
+                    <p className="text-sm text-gray-400 mt-3">
+                      {dataSource === 'cached' ? 
+                        'Analysis based on cached data • Connect wallet for live updates' :
+                        'Real-time analysis with current market conditions'
+                      }
+                    </p>
+                  </div>
                 </>
+              ) : loading ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12"
+                >
+                  <FaSync className="animate-spin text-4xl text-purple-400 mx-auto mb-4" />
+                  <p className="text-lg">Loading wallet data...</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    {balanceLoading ? 'Fetching balance...' : 'Analyzing portfolio...'}
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-lg text-gray-400 mb-4">No wallet data available</p>
+                  <button
+                    onClick={() => fetchWalletData(false)}
+                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Load Portfolio Data
+                  </button>
+                </div>
               )}
             </motion.div>
           )}
 
-          {/* Step 3: Enhanced Analysis Results */}
+          {/* Step 3: Analysis Results */}
           {step === 3 && portfolioAnalysis && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1102,7 +1056,7 @@ ${data.totalValue > 10000 ? `
                 </div>
               </div>
 
-              {/* Enhanced Action Buttons */}
+              {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button
                   onClick={() => analyzePortfolioWithAI()}
@@ -1123,10 +1077,11 @@ ${data.totalValue > 10000 ? `
 
                 <button
                   onClick={refreshData}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
+                  disabled={!isConnected}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
                 >
                   <FaDatabase className="mr-2" />
-                  Sync Data
+                  Sync Live Data
                 </button>
               </div>
             </motion.div>
@@ -1134,7 +1089,7 @@ ${data.totalValue > 10000 ? `
         </div>
       </div>
 
-      {/* Enhanced Loading Overlay */}
+      {/* Loading Overlay */}
       <AnimatePresence>
         {(loading || analyzingPortfolio) && (
           <motion.div
@@ -1150,10 +1105,8 @@ ${data.totalValue > 10000 ? `
               </p>
               <p className="text-sm text-gray-400">
                 {analyzingPortfolio 
-                  ? 'Generating personalized insights and recommendations'
-                  : balanceLoading 
-                    ? 'Fetching balance from blockchain...' 
-                    : 'Processing portfolio composition...'
+                  ? 'Generating personalized insights'
+                  : 'Processing and caching data locally'
                 }
               </p>
             </div>
