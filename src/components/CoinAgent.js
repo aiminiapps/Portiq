@@ -625,7 +625,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
   }, [address, fetchWalletData, refetchBalance, hapticFeedback])
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden pb-20">
+    <div className="min-h-screen text-white pb-20">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <motion.div 
@@ -730,12 +730,12 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   >
                     {step > num ? <FaCheckCircle /> : <Icon />}
                   </motion.div>
-                  <div className={`text-sm mt-1 ${step >= num ? 'text-[#FF2FB3]' : 'text-[#FFFFFF]'}`}>
+                  <div className={`text-sm mt-1 text-center ${step >= num ? 'text-[#FF2FB3]' : 'text-[#FFFFFF]'}`}>
                     {label}
                   </div>
                 </motion.div>
                 {index < 2 && (
-                  <div className={`w-6 h-0.5 mx-2 rounded transition-all duration-300 ${
+                  <div className={`w-6 h-0.5 mx-2 -mt-5 rounded transition-all duration-300 ${
                     step > num ? 'bg-gradient-to-r from-[#FF007F] to-[#FF2FB3]' : 'bg-[#2E2E30]'
                   }`} />
                 )}
@@ -778,9 +778,9 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                 whileTap={{ scale: 0.98 }}
                 onClick={connectWallet}
                 disabled={loading}
-                className="w-full glass-button bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#FF5A2A] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
+                className="w-full glass-button bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#FF5A2A] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 scale-95"
                 style={{
-                  boxShadow: loading ? 'none' : '0 0 20px rgba(255, 47, 179, 0.4)',
+                  boxShadow: "none",
                 }}
               >
                 {loading ? (
@@ -798,7 +798,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
 
               <motion.div 
                 variants={scaleIn}
-                className="bg-[#2E2E30] rounded-lg p-4"
+                className="bg-[#2E2E30] glass  rounded-lg p-4"
               >
                 <div className="flex items-start">
                   <FaShieldAlt className="text-[#FFB82A] mr-3 mt-1 flex-shrink-0" />
