@@ -624,8 +624,8 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
   }, [address, fetchWalletData, refetchBalance, hapticFeedback])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0B0C10] to-[#1A1A1D] text-white overflow-x-hidden">
-      <div className="max-w-md mx-auto px-4 py-6">
+    <div className="min-h-screen text-white overflow-x-hidden pb-20">
+      <div className="max-w-md mx-auto py-6">
         {/* Header */}
         <motion.div 
           variants={slideUp}
