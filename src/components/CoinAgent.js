@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   FaWallet, FaBrain, FaShieldAlt, FaChartPie, FaCoins, 
   FaExclamationTriangle, FaSync, FaEye, FaShare, FaCopy, FaGem,
-  FaCheckCircle, FaDatabase, FaFire
+  FaCheckCircle, FaDatabase, FaRocket, FaFire
 } from 'react-icons/fa'
-import { HiSparkles } from 'react-icons/hi'
+import { HiSparkles, HiLightBulb } from 'react-icons/hi'
 import { 
   useAccount, 
   useBalance, 
@@ -28,11 +28,11 @@ const STORAGE_KEYS = {
 
 // Supported networks
 const SUPPORTED_NETWORKS = {
-  1: { name: 'Ethereum', symbol: 'ETH', color: '#627EEA' },
-  137: { name: 'Polygon', symbol: 'MATIC', color: '#8247E5' },
-  42161: { name: 'Arbitrum', symbol: 'ETH', color: '#28A0F0' },
-  8453: { name: 'Base', symbol: 'ETH', color: '#0052FF' },
-  10: { name: 'Optimism', symbol: 'ETH', color: '#FF0420' }
+  1: { name: 'Ethereum', symbol: 'ETH', color: '#FF007F' },
+  137: { name: 'Polygon', symbol: 'MATIC', color: '#FF2FB3' },
+  42161: { name: 'Arbitrum', symbol: 'ETH', color: '#FF5A2A' },
+  8453: { name: 'Base', symbol: 'ETH', color: '#FFB82A' },
+  10: { name: 'Optimism', symbol: 'ETH', color: '#6C00B8' }
 }
 
 // Popular tokens for realistic data
@@ -49,6 +49,25 @@ const POPULAR_TOKENS = {
     { symbol: 'USDT', name: 'Tether USD' },
     { symbol: 'WETH', name: 'Wrapped ETH' }
   ]
+}
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
+}
+
+const scaleIn = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.9 }
+}
+
+const slideInLeft = {
+  initial: { opacity: 0, x: -30 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -30 }
 }
 
 const PortiqAiAgentCore = () => {
@@ -76,65 +95,76 @@ const PortiqAiAgentCore = () => {
   const [lastUpdate, setLastUpdate] = useState(null)
   const [dataSource, setDataSource] = useState('live')
   const [isInitialized, setIsInitialized] = useState(false)
+  const [dataLoadingStage, setDataLoadingStage] = useState('')
 
   // Current network info
   const currentNetwork = useMemo(() => 
-    SUPPORTED_NETWORKS[chainId] || { name: 'Unknown', symbol: 'ETH', color: '#627EEA' },
+    SUPPORTED_NETWORKS[chainId] || { name: 'Unknown', symbol: 'ETH', color: '#FF007F' },
     [chainId]
   )
 
-  // Haptic feedback
+  // Haptic feedback with softer patterns
   const hapticFeedback = useCallback((type = 'light') => {
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
       const patterns = {
-        light: [10], medium: [50], heavy: [100],
-        success: [50, 30, 50], warning: [100, 50, 100], error: [200, 100, 200],
-        tick: [5], click: [10, 10, 10]
+        light: [8],
+        medium: [12],
+        heavy: [20],
+        success: [8, 15, 8],
+        warning: [15, 10, 15],
+        error: [25, 20, 25],
+        tick: [3],
+        click: [5]
       }
       navigator.vibrate(patterns[type] || patterns.light)
     }
   }, [])
 
-  // Initialize component - load stored data first
+  // Initialize component
   useEffect(() => {
     initializeComponent()
   }, [])
 
-  // Handle wallet connection changes - but preserve data when possible
+  // Handle wallet connection changes with better data handling
   useEffect(() => {
     if (!isInitialized) return
 
-    if (isConnected && address) {
-      const storedAddress = localStorage.getItem(STORAGE_KEYS.LAST_ADDRESS)
-      const storedChain = localStorage.getItem(STORAGE_KEYS.LAST_CHAIN)
-      
-      // Check if this is the same wallet/chain as stored data
-      const isSameWallet = storedAddress === address && storedChain === String(chainId)
-      
-      if (isSameWallet && walletData) {
-        // Same wallet - keep existing data and maybe refresh in background
+    const handleConnectionChange = async () => {
+      if (isConnected && address) {
+        const storedAddress = localStorage.getItem(STORAGE_KEYS.LAST_ADDRESS)
+        const storedChain = localStorage.getItem(STORAGE_KEYS.LAST_CHAIN)
+        
+        const isSameWallet = storedAddress === address && storedChain === String(chainId)
+        
         setStep(2)
-        checkForDataRefresh()
-      } else {
-        // Different wallet or no existing data - fetch fresh data
-        setStep(2)
-        fetchWalletData(false)
+        
+        if (!isSameWallet || !walletData) {
+          // New wallet or no data - fetch fresh data immediately
+          console.log('New wallet detected or no cached data, fetching fresh data...')
+          await fetchWalletData(false)
+        } else {
+          console.log('Same wallet detected, using cached data and refreshing in background')
+          // Same wallet - use cached data but refresh in background
+          setTimeout(() => checkForDataRefresh(), 1000)
+        }
+        
+        // Update stored references
+        localStorage.setItem(STORAGE_KEYS.LAST_ADDRESS, address)
+        localStorage.setItem(STORAGE_KEYS.LAST_CHAIN, String(chainId))
+        
+      } else if (!isConnected && isInitialized) {
+        setStep(1)
       }
-      
-      // Update stored references
-      localStorage.setItem(STORAGE_KEYS.LAST_ADDRESS, address)
-      localStorage.setItem(STORAGE_KEYS.LAST_CHAIN, String(chainId))
-      
-    } else if (!isConnected && isInitialized) {
-      // Only clear step, keep data for potential reconnection
-      setStep(1)
     }
-  }, [isConnected, address, chainId, isInitialized, walletData])
+
+    handleConnectionChange()
+  }, [isConnected, address, chainId, isInitialized])
 
   // Initialize component and load any stored data
   const initializeComponent = useCallback(async () => {
     try {
-      // Load stored data
+      setDataLoadingStage('Loading cached data...')
+      
       const storedWalletData = localStorage.getItem(STORAGE_KEYS.WALLET_DATA)
       const storedAnalysis = localStorage.getItem(STORAGE_KEYS.PORTFOLIO_ANALYSIS)
       const storedLastUpdate = localStorage.getItem(STORAGE_KEYS.LAST_UPDATE)
@@ -145,10 +175,9 @@ const PortiqAiAgentCore = () => {
           setWalletData(parsedData)
           setPortfolioScore(calculatePortfolioScore(parsedData))
           setDataSource('cached')
-          
-          console.log('Loaded cached wallet data:', parsedData)
+          console.log('Cached data loaded successfully')
         } catch (parseError) {
-          console.error('Error parsing stored wallet data:', parseError)
+          console.error('Error parsing stored data:', parseError)
           localStorage.removeItem(STORAGE_KEYS.WALLET_DATA)
         }
       }
@@ -162,9 +191,11 @@ const PortiqAiAgentCore = () => {
       }
 
       setIsInitialized(true)
+      setDataLoadingStage('')
     } catch (error) {
-      console.error('Error initializing component:', error)
+      console.error('Error initializing:', error)
       setIsInitialized(true)
+      setDataLoadingStage('')
     }
   }, [])
 
@@ -176,10 +207,10 @@ const PortiqAiAgentCore = () => {
   }, [lastUpdate])
 
   // Check for data refresh (background)
-  const checkForDataRefresh = useCallback(() => {
+  const checkForDataRefresh = useCallback(async () => {
     if (needsDataRefresh && address && balance) {
       console.log('Data is stale, refreshing in background...')
-      setTimeout(() => fetchWalletData(true), 2000) // Background refresh after 2 seconds
+      await fetchWalletData(true)
     }
   }, [needsDataRefresh, address, balance])
 
@@ -195,7 +226,7 @@ const PortiqAiAgentCore = () => {
       }
       
       setLastUpdate(now)
-      console.log('Data saved to localStorage')
+      console.log('Data saved to localStorage at:', now.toLocaleTimeString())
       hapticFeedback('tick')
     } catch (error) {
       console.error('Error saving to storage:', error)
@@ -218,10 +249,10 @@ const PortiqAiAgentCore = () => {
     }
   }, [open, hapticFeedback])
 
-  // Fetch wallet data
+  // Enhanced wallet data fetching with proper balance handling
   const fetchWalletData = useCallback(async (isBackground = false) => {
-    if (!address || !balance) {
-      console.log('Missing address or balance for data fetch')
+    if (!address) {
+      console.log('No address available for data fetch')
       return
     }
 
@@ -229,21 +260,53 @@ const PortiqAiAgentCore = () => {
       if (!isBackground) {
         setLoading(true)
         setError('')
+        setDataLoadingStage('Connecting to blockchain...')
       }
 
       console.log(`Fetching wallet data ${isBackground ? '(background)' : ''} for:`, address)
       
-      const nativeBalance = parseFloat(formatEther(balance.value))
+      // Wait for balance if it's still loading
+      let currentBalance = balance
+      if (!currentBalance && !balanceLoading) {
+        if (!isBackground) {
+          setDataLoadingStage('Fetching balance...')
+        }
+        // Try to refetch balance
+        if (refetchBalance) {
+          const result = await refetchBalance()
+          currentBalance = result.data
+        }
+      }
+
+      if (!currentBalance) {
+        console.log('No balance data available yet')
+        if (!isBackground) {
+          setError('Unable to fetch balance. Please try again.')
+        }
+        return
+      }
+
+      if (!isBackground) {
+        setDataLoadingStage('Processing portfolio data...')
+      }
+
+      const nativeBalance = parseFloat(formatEther(currentBalance.value))
+      console.log('Native balance:', nativeBalance, currentNetwork.symbol)
+
       const nativePrice = await getCurrentPrice(currentNetwork.symbol)
       const nativeValue = nativeBalance * nativePrice
 
       // Generate realistic token holdings
+      if (!isBackground) {
+        setDataLoadingStage('Generating token data...')
+      }
+      
       const mockTokens = await generateRealisticTokens(nativeValue, chainId)
       
       const assets = []
       
-      // Add native token
-      if (nativeBalance > 0 || nativeValue > 0) {
+      // Add native token if it has value
+      if (nativeBalance > 0) {
         assets.push({
           symbol: currentNetwork.symbol,
           name: currentNetwork.name,
@@ -265,13 +328,14 @@ const PortiqAiAgentCore = () => {
         })
       }
 
+      // Sort by value descending
       assets.sort((a, b) => b.value - a.value)
 
       const portfolioData = {
         address,
         chainId,
         network: currentNetwork.name,
-        totalValue,
+        totalValue: totalValue || 0,
         nativeBalance,
         nativeValue,
         assets: assets.filter(asset => asset.value > 0.01),
@@ -304,72 +368,79 @@ const PortiqAiAgentCore = () => {
     } finally {
       if (!isBackground) {
         setLoading(false)
+        setDataLoadingStage('')
       }
     }
-  }, [address, balance, chainId, currentNetwork, saveToStorage, hapticFeedback])
+  }, [address, balance, balanceLoading, refetchBalance, chainId, currentNetwork, saveToStorage, hapticFeedback])
 
   // Generate realistic token data
   const generateRealisticTokens = useCallback(async (totalValue, chainId) => {
     const networkTokens = POPULAR_TOKENS[chainId] || POPULAR_TOKENS[1]
     const tokens = []
 
-    if (totalValue < 100) return []
+    if (totalValue < 50) return [] // No tokens for very small portfolios
 
-    const numTokens = totalValue > 10000 ? 5 : totalValue > 1000 ? 3 : 2
+    const numTokens = totalValue > 10000 ? 4 : totalValue > 1000 ? 3 : 2
     const selectedTokens = networkTokens.slice(0, numTokens)
 
     for (const tokenInfo of selectedTokens) {
       let balance = 0
       const price = await getCurrentPrice(tokenInfo.symbol)
 
-      if (tokenInfo.symbol.includes('USD')) {
-        balance = (totalValue * (0.1 + Math.random() * 0.2)) / price
-      } else {
-        balance = (totalValue * (0.05 + Math.random() * 0.15)) / price
-      }
+      if (price > 0) {
+        if (tokenInfo.symbol.includes('USD')) {
+          // Stablecoins: 10-25% of portfolio
+          balance = (totalValue * (0.1 + Math.random() * 0.15)) / price
+        } else {
+          // Other tokens: 5-20% of portfolio
+          balance = (totalValue * (0.05 + Math.random() * 0.15)) / price
+        }
 
-      if (balance > 0 && price > 0) {
-        tokens.push({
-          symbol: tokenInfo.symbol,
-          name: tokenInfo.name,
-          balance: balance,
-          value: balance * price,
-          allocation: 0,
-          isNative: false
-        })
+        if (balance > 0) {
+          tokens.push({
+            symbol: tokenInfo.symbol,
+            name: tokenInfo.name,
+            balance: balance,
+            value: balance * price,
+            allocation: 0,
+            isNative: false
+          })
+        }
       }
     }
 
     return tokens
   }, [])
 
-  // Get current price (with session caching)
+  // Get current price with session caching
   const getCurrentPrice = useCallback(async (symbol) => {
     try {
       const cached = sessionStorage.getItem(`price_${symbol}`)
       
       if (cached) {
         const { price, timestamp } = JSON.parse(cached)
-        if (Date.now() - timestamp < 60000) {
+        if (Date.now() - timestamp < 120000) { // 2 minute cache
           return price
         }
       }
 
+      // Realistic price ranges
       const prices = {
-        'ETH': 2800 + (Math.random() * 400 - 200),
-        'MATIC': 0.7 + (Math.random() * 0.3 - 0.15),
-        'BTC': 42000 + (Math.random() * 8000 - 4000),
-        'USDC': 1 + (Math.random() * 0.02 - 0.01),
-        'USDT': 1 + (Math.random() * 0.02 - 0.01),
-        'DAI': 1 + (Math.random() * 0.02 - 0.01),
-        'LINK': 14 + (Math.random() * 4 - 2),
-        'UNI': 6 + (Math.random() * 2 - 1),
-        'AAVE': 95 + (Math.random() * 20 - 10),
-        'WETH': 2800 + (Math.random() * 400 - 200)
+        'ETH': 2500 + (Math.random() * 600 - 300), // 2200-2800
+        'MATIC': 0.6 + (Math.random() * 0.4 - 0.2), // 0.4-1.0
+        'BTC': 40000 + (Math.random() * 10000 - 5000), // 35k-45k
+        'USDC': 0.998 + (Math.random() * 0.004), // 0.998-1.002
+        'USDT': 0.998 + (Math.random() * 0.004), // 0.998-1.002
+        'DAI': 0.998 + (Math.random() * 0.004), // 0.998-1.002
+        'LINK': 12 + (Math.random() * 6 - 3), // 9-15
+        'UNI': 5 + (Math.random() * 3 - 1.5), // 3.5-6.5
+        'AAVE': 80 + (Math.random() * 40 - 20), // 60-100
+        'WETH': 2500 + (Math.random() * 600 - 300) // Same as ETH
       }
       
-      const price = prices[symbol] || (Math.random() * 100 + 1)
+      const price = prices[symbol] || (Math.random() * 50 + 10)
       
+      // Cache the price
       sessionStorage.setItem(`price_${symbol}`, JSON.stringify({
         price,
         timestamp: Date.now()
@@ -382,93 +453,101 @@ const PortiqAiAgentCore = () => {
     }
   }, [])
 
-  // Risk calculations
+  // Risk calculations with enhanced logic
   const calculateRiskScore = useCallback((assets) => {
-    if (!assets || assets.length === 0) return 0
+    if (!assets || assets.length === 0) return 50
     
     const allocations = assets.map(a => a.allocation).filter(a => a > 0)
-    if (allocations.length === 0) return 0
+    if (allocations.length === 0) return 50
 
     const maxAllocation = Math.max(...allocations)
     const stableAllocation = assets
       .filter(a => ['USDC', 'USDT', 'DAI', 'BUSD'].includes(a.symbol))
       .reduce((sum, a) => sum + (a.allocation || 0), 0)
     
-    let riskScore = 50
+    let riskScore = 50 // Base risk
     
+    // Concentration risk
     if (maxAllocation > 80) riskScore += 35
     else if (maxAllocation > 60) riskScore += 25
     else if (maxAllocation > 40) riskScore += 15
     else if (maxAllocation < 30) riskScore -= 10
     
+    // Stable coin hedge
     if (stableAllocation > 40) riskScore -= 20
     else if (stableAllocation > 20) riskScore -= 15
     else if (stableAllocation > 10) riskScore -= 10
     else if (stableAllocation === 0) riskScore += 15
     
+    // Diversification factor
     if (assets.length >= 5) riskScore -= 10
     else if (assets.length <= 2) riskScore += 15
     
-    return Math.max(0, Math.min(100, Math.round(riskScore)))
+    return Math.max(10, Math.min(90, Math.round(riskScore)))
   }, [])
 
   const calculateDiversificationScore = useCallback((assets) => {
-    if (!assets || assets.length === 0) return 0
+    if (!assets || assets.length === 0) return 20
     
     const validAssets = assets.filter(a => a.allocation > 0)
-    if (validAssets.length === 0) return 0
+    if (validAssets.length === 0) return 20
 
     const numAssets = validAssets.length
     const maxAllocation = Math.max(...validAssets.map(a => a.allocation))
     
-    let score = Math.min(numAssets * 20, 60)
+    let score = Math.min(numAssets * 18, 60) // Base score from asset count
     
-    if (maxAllocation < 30) score += 30
-    else if (maxAllocation < 50) score += 20
-    else if (maxAllocation < 70) score += 10
-    else score -= 10
+    // Balance bonus
+    if (maxAllocation < 30) score += 30 // Very balanced
+    else if (maxAllocation < 50) score += 20 // Balanced
+    else if (maxAllocation < 70) score += 10 // Somewhat balanced
     
+    // Stablecoin bonus
     const hasStables = validAssets.some(a => ['USDC', 'USDT', 'DAI'].includes(a.symbol))
     if (hasStables) score += 10
     
-    return Math.min(100, Math.max(0, Math.round(score)))
+    return Math.min(95, Math.max(15, Math.round(score)))
   }, [])
 
   const calculatePortfolioScore = useCallback((data) => {
-    if (!data || !data.assets || data.assets.length === 0) return 0
+    if (!data || !data.assets || data.assets.length === 0) return 25
     
     const validAssets = data.assets.filter(a => a.value > 0)
-    if (validAssets.length === 0) return 0
+    if (validAssets.length === 0) return 25
     
     let score = 100
     const allocations = validAssets.map(a => a.allocation).filter(a => a > 0)
     
-    if (allocations.length === 0) return 0
+    if (allocations.length === 0) return 25
     
     const maxAllocation = Math.max(...allocations)
     
-    if (maxAllocation > 90) score -= 50
-    else if (maxAllocation > 80) score -= 40
-    else if (maxAllocation > 70) score -= 30
-    else if (maxAllocation > 60) score -= 20
-    else if (maxAllocation > 50) score -= 10
+    // Concentration penalties
+    if (maxAllocation > 90) score -= 45
+    else if (maxAllocation > 80) score -= 35
+    else if (maxAllocation > 70) score -= 25
+    else if (maxAllocation > 60) score -= 15
+    else if (maxAllocation > 50) score -= 8
     
-    if (validAssets.length === 1) score -= 30
-    else if (validAssets.length === 2) score -= 20
-    else if (validAssets.length >= 5) score += 10
+    // Diversification factors
+    if (validAssets.length === 1) score -= 25
+    else if (validAssets.length === 2) score -= 15
+    else if (validAssets.length >= 4) score += 8
     
-    if (data.totalValue < 100) score -= 10
-    else if (data.totalValue > 10000) score += 5
+    // Portfolio size factor
+    if (data.totalValue < 100) score -= 8
+    else if (data.totalValue > 5000) score += 5
     
+    // Stable allocation
     const stableAllocation = validAssets
       .filter(a => ['USDC', 'USDT', 'DAI'].includes(a.symbol))
       .reduce((sum, a) => sum + (a.allocation || 0), 0)
     
-    if (stableAllocation === 0) score -= 15
-    else if (stableAllocation > 60) score -= 20
-    else if (stableAllocation >= 15 && stableAllocation <= 35) score += 10
+    if (stableAllocation === 0) score -= 12
+    else if (stableAllocation > 50) score -= 15
+    else if (stableAllocation >= 15 && stableAllocation <= 30) score += 8
     
-    return Math.max(0, Math.min(100, Math.round(score)))
+    return Math.max(15, Math.min(95, Math.round(score)))
   }, [])
 
   // AI Analysis
@@ -479,7 +558,7 @@ const PortiqAiAgentCore = () => {
       setAnalyzingPortfolio(true)
       hapticFeedback('medium')
 
-      await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1500))
+      await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000))
 
       const analysis = generateEnhancedAIAnalysis(walletData, portfolioScore)
       setPortfolioAnalysis(analysis)
@@ -499,7 +578,7 @@ const PortiqAiAgentCore = () => {
 
   const generateEnhancedAIAnalysis = useCallback((data, score) => {
     const riskLevel = score > 80 ? 'Low' : score > 60 ? 'Moderate' : score > 40 ? 'High' : 'Very High'
-    const riskColor = score > 80 ? '🟢' : score > 60 ? '🟡' : score > 40 ? '🟠' : '🔴'
+    const riskEmoji = score > 80 ? '🟢' : score > 60 ? '🟡' : score > 40 ? '🟠' : '🔴'
     
     const topAsset = data.assets.length > 0 
       ? data.assets.reduce((max, asset) => asset.allocation > max.allocation ? asset : max, data.assets[0])
@@ -513,70 +592,68 @@ const PortiqAiAgentCore = () => {
     const isWhale = data.totalValue > 100000
     const portfolioSize = data.totalValue > 50000 ? 'Large' : data.totalValue > 10000 ? 'Medium' : data.totalValue > 1000 ? 'Small' : 'Micro'
 
-    return `🤖 **PORTIQ AI PORTFOLIO INTELLIGENCE**
-Generated: ${new Date().toLocaleString()}
-Network: ${data.network} • Wallet: ${data.address?.slice(0, 8)}...
+    return `🔮 PORTIQ AI PORTFOLIO INTELLIGENCE
 
-**📊 PORTFOLIO OVERVIEW**
-• Total Value: $${data.totalValue.toLocaleString()} USD
-• Portfolio Size: ${portfolioSize} ${isWhale ? '🐋' : ''}
-• Health Score: ${score}/100 ${score > 80 ? '🎯' : score > 60 ? '⚖️' : '⚠️'}
-• Risk Level: ${riskColor} ${riskLevel}
-• Asset Count: ${data.assets.length} tokens
-• Data Cached: ✅ Survives page refresh
+📱 Mobile Report • ${new Date().toLocaleString()}
+🌟 Network: ${data.network} • ${data.address?.slice(0, 6)}...
 
-**🔍 DETAILED ANALYSIS**
-• Largest Holding: ${topAsset.symbol} (${topAsset.allocation}%)
-• Diversification: ${data.assets.length > 4 ? 'Well diversified' : data.assets.length > 2 ? 'Moderate' : 'Concentrated'} 
-• Stable Exposure: ${hasStables ? `${stableAllocation}% stablecoins ✅` : 'No stable hedge ⚠️'}
-• Network: ${data.network} blockchain
+💎 PORTFOLIO SNAPSHOT
+💰 Total Value: $${data.totalValue.toLocaleString()}
+📊 Size Category: ${portfolioSize} ${isWhale ? '🐋' : '📱'}
+⭐ AI Score: ${score}/100 ${score > 80 ? '🎯' : score > 60 ? '✅' : '⚠️'}
+🎲 Risk Level: ${riskEmoji} ${riskLevel}
+🔥 Assets: ${data.assets.length} tokens
 
-**💡 AI RECOMMENDATIONS**
+🔍 KEY INSIGHTS
+🏆 Top Position: ${topAsset.symbol} (${topAsset.allocation}%)
+🌈 Spread: ${data.assets.length > 3 ? 'Well diversified' : 'Needs more spread'}
+🏦 Stable Shield: ${hasStables ? `${stableAllocation}% protected` : 'No safety net'}
+⚡ Chain: ${data.network} ecosystem
 
-${score < 50 ? `🚨 **CRITICAL REBALANCING NEEDED**
-• High concentration risk detected
-• Reduce ${topAsset.symbol} to <50% allocation
-• Add blue-chip diversification immediately` : 
-score < 70 ? `⚖️ **OPTIMIZATION OPPORTUNITIES** 
-• Solid foundation, room for improvement
-• Consider ${hasStables ? 'DeFi yield positions' : '15-20% stablecoin buffer'}
-• Monitor ${topAsset.symbol} allocation` :
-`🎯 **EXCELLENT PORTFOLIO BALANCE**
-• Outstanding diversification strategy
-• Perfect for yield farming opportunities  
+🎯 AI RECOMMENDATIONS
+
+${score < 50 ? `🚨 URGENT REBALANCING
+• ${topAsset.symbol} is too concentrated (${topAsset.allocation}%)
+• Target: Reduce to under 50%
+• Add blue-chip diversity ASAP` : 
+score < 70 ? `⚖️ PORTFOLIO TUNING
+• Good base, needs fine-tuning
+• Consider ${hasStables ? 'DeFi yield positions' : '20% stablecoin buffer'}
+• Watch your ${topAsset.symbol} weight` :
+`🎉 EXCELLENT BALANCE
+• Perfect diversification strategy
+• Ready for advanced yield farming
 • Maintain quarterly rebalancing`}
 
-**🎯 TARGET ALLOCATION**
-• 35-45% Blue-chip crypto (BTC, ETH)
-• 25-35% Quality altcoins & Layer-1s
-• 15-25% Stablecoins (USDC, USDT)
-• 5-15% Emerging opportunities
-• <5% Experimental/high-risk
+🎨 OPTIMAL MIX (Mobile Portfolio)
+• 📱 40% Core crypto (BTC, ETH)
+• 🚀 30% Growth altcoins
+• 🛡️ 20% Stablecoins (USDC/USDT)
+• ⚡ 10% Emerging gems
 
-**📈 MARKET STRATEGY**
-• Phase: ${Math.random() > 0.5 ? 'Accumulation period' : 'Consolidation phase'}
-• Action: ${score > 70 ? 'DCA and hold strategy' : 'Rebalance then DCA'}
-• Timeline: ${data.totalValue > 50000 ? 'Long-term wealth building' : 'Growth accumulation'}
+📈 MOBILE STRATEGY
+• Market Phase: ${Math.random() > 0.5 ? 'Accumulation mode' : 'Profit-taking'}
+• Action Plan: ${score > 70 ? 'DCA & HODL' : 'Rebalance first'}
+• Timeline: ${data.totalValue > 20000 ? 'Wealth building' : 'Portfolio growth'}
 
-**⚡ ACTION PLAN**
-1. ${score < 50 ? '🔴 Emergency rebalance (24-48h)' : score < 70 ? '🟡 Weekly review cycle' : '🟢 Monthly maintenance'}
-2. Set portfolio alerts at ±20% allocation
-3. ${data.totalValue < 1000 ? 'Focus on core asset accumulation' : 'Implement yield strategies'}
-4. Monitor whale movements and market sentiment
+⚡ NEXT ACTIONS
+1. ${score < 50 ? '🔴 Emergency rebalance (48h)' : score < 70 ? '🟡 Weekly portfolio check' : '🟢 Monthly maintenance'}
+2. Set mobile alerts for ±25% moves
+3. ${data.totalValue < 500 ? 'Focus on core accumulation' : 'Explore yield opportunities'}
 
-**🔐 SECURITY & STORAGE**
-• Data persistently cached locally ✅
-• Read-only wallet analysis (secure) ✅  
-• Regular backup recommendations
-• Hardware wallet for large holdings
+🔐 MOBILE SECURITY
+✅ Data cached locally on device
+✅ No private keys exposed
+✅ Read-only blockchain access
+✅ Secure wallet connection
 
-*Real-time analysis • Data cached locally • Survives refresh*
-**Portiq AI Agent** • Advanced Portfolio Intelligence`
+*Real-time AI analysis • Optimized for mobile*
+🔮 PORTIQ AI AGENT • Advanced Web3 Intelligence`
   }, [])
 
   // Utility functions
   const formatAddress = useCallback((addr) => 
-    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '', [])
+    addr ? `${addr.slice(0, 4)}...${addr.slice(-4)}` : '', [])
 
   const copyAnalysis = useCallback(async () => {
     try {
@@ -590,8 +667,8 @@ score < 70 ? `⚖️ **OPTIMIZATION OPPORTUNITIES**
 
   const shareAnalysis = useCallback(async () => {
     const shareData = {
-      title: 'My Portiq AI Portfolio Analysis',
-      text: `🤖 AI Portfolio Analysis\n\n💰 Value: $${walletData?.totalValue?.toLocaleString()}\n📊 Score: ${portfolioScore}/100\n🔗 ${currentNetwork.name}\n\n✨ Portiq AI Agent`,
+      title: 'My Portiq AI Portfolio',
+      text: `🔮 Mobile Portfolio Analysis\n\n💎 Value: $${walletData?.totalValue?.toLocaleString()}\n⭐ Score: ${portfolioScore}/100\n🌟 ${currentNetwork.name}\n\n📱 Portiq AI Agent`,
       url: window.location.href
     }
 
@@ -612,91 +689,85 @@ score < 70 ? `⚖️ **OPTIMIZATION OPPORTUNITIES**
     if (!address) return
     hapticFeedback('click')
     await fetchWalletData(false)
-    if (refetchBalance) {
-      refetchBalance()
-    }
-  }, [address, fetchWalletData, refetchBalance, hapticFeedback])
-
-  // Clear all stored data (for testing)
-  const clearStoredData = useCallback(() => {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key)
-    })
-    setWalletData(null)
-    setPortfolioAnalysis('')
-    setLastUpdate(null)
-    hapticFeedback('warning')
-  }, [hapticFeedback])
+  }, [address, fetchWalletData, hapticFeedback])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header with persistent data indicator */}
+    <div className="min-h-screen overflow-x-hidden" style={{
+      background: 'linear-gradient(180deg, #0B0C10 0%, #1A1A1D 100%)',
+    }}>
+      <div className="px-4 py-6 max-w-md mx-auto">
+        {/* Mobile Header */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
         >
-          <div className="flex items-center justify-center mb-4">
-            <FaBrain className="text-4xl text-purple-400 mr-3" />
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Portiq AI Agent
+          <motion.div 
+            className="flex items-center justify-center mb-4"
+            animate={{ 
+              filter: ['hue-rotate(0deg)', 'hue-rotate(360deg)'],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          >
+            <FaBrain className="text-3xl mr-2" style={{ color: '#FF007F' }} />
+            <h1 className="text-3xl font-bold" style={{
+              background: 'linear-gradient(90deg, #FF007F, #FF2FB3, #FF5A2A, #FFB82A)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Portiq AI
             </h1>
-          </div>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Persistent Web3 portfolio intelligence with local data storage
-          </p>
+          </motion.div>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-sm"
+            style={{ color: '#FFFFFF' }}
+          >
+            Mobile Web3 Portfolio Intelligence
+          </motion.p>
           
-          {/* Enhanced Data Status */}
-          <div className="mt-6 flex flex-col items-center space-y-2">
-            {walletData && (
-              <div className="flex items-center space-x-4 text-sm bg-white/10 rounded-lg px-4 py-2">
-                <div className="flex items-center">
-                  <FaDatabase className={`${dataSource === 'live' ? 'text-green-400' : 'text-yellow-400'} mr-2`} />
-                  <span>Data: {dataSource === 'live' ? 'Live' : 'Cached'}</span>
-                </div>
-                {lastUpdate && (
-                  <div className="text-gray-400">
-                    Updated: {lastUpdate.toLocaleTimeString()}
-                  </div>
-                )}
-                {needsDataRefresh && (
-                  <div className="text-yellow-400">
-                    • Refresh available
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* Debug: Clear storage button (remove in production) */}
-            {walletData && (
-              <button
-                onClick={clearStoredData}
-                className="text-xs text-gray-500 hover:text-gray-400 underline"
-              >
-                Clear Cached Data (Debug)
-              </button>
-            )}
-          </div>
+          {/* Mobile Data Status */}
+          {walletData && (
+            <motion.div
+              initial={scaleIn.initial}
+              animate={scaleIn.animate}
+              className="mt-4 text-xs rounded-lg px-3 py-2 flex items-center justify-center space-x-2"
+              style={{ backgroundColor: '#2E2E30' }}
+            >
+              <FaDatabase className={dataSource === 'live' ? 'text-[#FF2FB3]' : 'text-[#FFB82A]'} />
+              <span style={{ color: '#FFFFFF' }}>
+                {dataSource === 'live' ? 'Live Data' : 'Cached'} • {lastUpdate?.toLocaleTimeString()}
+              </span>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Error Display */}
         <AnimatePresence>
           {error && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-red-500/20 border border-red-500 rounded-lg p-4 mb-6"
+              initial={scaleIn.initial}
+              animate={scaleIn.animate}
+              exit={scaleIn.exit}
+              className="rounded-lg p-3 mb-4 border"
+              style={{ 
+                backgroundColor: 'rgba(255, 0, 60, 0.1)',
+                borderColor: '#FF003C',
+              }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center">
-                  <FaExclamationTriangle className="text-red-400 mr-3" />
-                  <span className="text-red-100">{error}</span>
+                  <FaExclamationTriangle className="mr-2" style={{ color: '#FF003C' }} />
+                  <span style={{ color: '#FFFFFF' }}>{error}</span>
                 </div>
                 <button
                   onClick={() => setError('')}
-                  className="text-red-400 hover:text-red-300 ml-4"
+                  className="ml-2 text-lg"
+                  style={{ color: '#FF003C' }}
                 >
                   ×
                 </button>
@@ -705,411 +776,626 @@ score < 70 ? `⚖️ **OPTIMIZATION OPPORTUNITIES**
           )}
         </AnimatePresence>
 
-        {/* Step Indicator */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center space-x-4">
+        {/* Mobile Step Indicator */}
+        <motion.div 
+          className="flex justify-center mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="flex items-center space-x-3">
             {[
-              { num: 1, label: 'Connect' },
-              { num: 2, label: 'Analyze' }, 
-              { num: 3, label: 'Insights' }
-            ].map(({ num, label }, index) => (
-              <div key={num} className="flex items-center">
-                <div className="text-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                    step >= num 
-                      ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/50' 
-                      : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    {step > num ? <FaCheckCircle /> : num}
-                  </div>
-                  <div className={`text-xs mt-1 ${step >= num ? 'text-purple-400' : 'text-gray-500'}`}>
-                    {label}
-                  </div>
+              { num: 1, label: 'Connect', icon: FaWallet },
+              { num: 2, label: 'Analyze', icon: FaChartPie }, 
+              { num: 3, label: 'Insights', icon: FaBrain }
+            ].map(({ num, label, icon: Icon }) => (
+              <motion.div 
+                key={num} 
+                className="text-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <motion.div 
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
+                  style={{
+                    backgroundColor: step >= num ? '#FF007F' : '#2E2E30',
+                    color: '#FFFFFF',
+                    boxShadow: step >= num ? '0 0 12px rgba(255, 0, 127, 0.4)' : 'none'
+                  }}
+                  animate={step === num ? { 
+                    boxShadow: [
+                      '0 0 12px rgba(255, 0, 127, 0.4)',
+                      '0 0 20px rgba(255, 47, 179, 0.6)', 
+                      '0 0 12px rgba(255, 0, 127, 0.4)'
+                    ]
+                  } : {}}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {step > num ? <FaCheckCircle className="text-xs" /> : <Icon className="text-xs" />}
+                </motion.div>
+                <div 
+                  className="text-[10px] mt-1"
+                  style={{ color: step >= num ? '#FF2FB3' : '#8A0D64' }}
+                >
+                  {label}
                 </div>
-                {index < 2 && (
-                  <div className={`w-16 h-1 mx-4 rounded transition-all duration-300 ${
-                    step > num ? 'bg-purple-500' : 'bg-gray-600'
-                  }`} />
-                )}
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto">
+        <AnimatePresence mode="wait">
           {/* Step 1: Connect Wallet */}
           {step === 1 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center"
+              key="connect"
+              initial={fadeInUp.initial}
+              animate={fadeInUp.animate}
+              exit={fadeInUp.exit}
+              transition={{ duration: 0.4 }}
+              className="text-center space-y-6"
             >
-              <h2 className="text-3xl font-bold mb-8">
-                {walletData ? 'Reconnect Your Wallet' : 'Connect Your Web3 Wallet'}
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#FFFFFF' }}>
+                {walletData ? 'Reconnect Wallet' : 'Connect Your Wallet'}
               </h2>
               
-              {/* Show cached data info if available */}
+              {/* Cached data indicator */}
               {walletData && (
-                <div className="mb-6 bg-blue-500/20 border border-blue-500 rounded-lg p-4">
+                <motion.div
+                  initial={scaleIn.initial}
+                  animate={scaleIn.animate}
+                  className="rounded-lg p-4 mb-4 border"
+                  style={{ 
+                    backgroundColor: 'rgba(255, 47, 179, 0.1)',
+                    borderColor: '#FF2FB3'
+                  }}
+                >
                   <div className="flex items-center justify-center mb-2">
-                    <FaDatabase className="text-blue-400 mr-2" />
-                    <span className="text-blue-100 font-semibold">Cached Portfolio Data Available</span>
+                    <FaDatabase className="mr-2" style={{ color: '#FF2FB3' }} />
+                    <span className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+                      Portfolio Data Available
+                    </span>
                   </div>
-                  <p className="text-blue-200 text-sm">
-                    Last portfolio: ${walletData.totalValue.toLocaleString()} • {walletData.assets.length} assets
-                    <br />Connect to refresh with live data
+                  <p className="text-xs" style={{ color: '#FFFFFF' }}>
+                    ${walletData.totalValue.toLocaleString()} • {walletData.assets.length} assets
                   </p>
-                </div>
+                </motion.div>
               )}
               
-              <div className="mb-8">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={connectWallet}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-6 px-12 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="flex items-center">
-                      <FaSync className="animate-spin mr-3 text-xl" />
-                      <span className="text-lg">Connecting...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center">
-                      <FaWallet className="mr-3 text-xl" />
-                      <span className="text-lg">{walletData ? 'Reconnect' : 'Connect'} Wallet</span>
-                    </div>
-                  )}
-                </motion.button>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={connectWallet}
+                disabled={loading}
+                className="w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 disabled:opacity-50"
+                style={{
+                  background: loading ? '#2E2E30' : 'linear-gradient(90deg, #FF007F, #FF2FB3, #FF5A2A, #FFB82A)',
+                  boxShadow: loading ? 'none' : '0 0 25px rgba(255, 47, 179, 0.3)'
+                }}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <FaSync className="animate-spin mr-2" />
+                    <span>Connecting...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <FaWallet className="mr-2" />
+                    <span>{walletData ? 'Reconnect' : 'Connect'} Wallet</span>
+                  </div>
+                )}
+              </motion.button>
 
-              <div className="max-w-md mx-auto bg-green-500/20 border border-green-500 rounded-lg p-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="rounded-lg p-4 border"
+                style={{ 
+                  backgroundColor: 'rgba(108, 0, 184, 0.1)',
+                  borderColor: '#6C00B8'
+                }}
+              >
                 <div className="flex items-start">
-                  <FaShieldAlt className="text-green-400 mr-3 mt-1 flex-shrink-0" />
+                  <FaShieldAlt className="mr-3 mt-1 flex-shrink-0" style={{ color: '#6C00B8' }} />
                   <div className="text-left">
-                    <h4 className="font-semibold text-green-100 mb-2">Data Persists Across Refreshes ✅</h4>
-                    <p className="text-green-200 text-sm">
-                      • Portfolio data cached locally<br/>
-                      • Survives browser refresh<br/>
-                      • No data loss on reconnection<br/>
-                      • Secure read-only access
-                    </p>
+                    <h4 className="text-sm font-semibold mb-2" style={{ color: '#FFFFFF' }}>
+                      Mobile Secure ✨
+                    </h4>
+                    <div className="text-xs space-y-1" style={{ color: '#FFFFFF' }}>
+                      <div>📱 Optimized for mobile</div>
+                      <div>🔒 Read-only access</div>
+                      <div>💾 Data cached locally</div>
+                      <div>🌐 400+ wallets supported</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
-          {/* Step 2: Portfolio Overview - now shows cached data immediately */}
+          {/* Step 2: Portfolio Overview */}
           {step === 2 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
+              key="portfolio"
+              initial={fadeInUp.initial}
+              animate={fadeInUp.animate}
+              exit={fadeInUp.exit}
+              transition={{ duration: 0.4 }}
+              className="space-y-4"
             >
-              {/* Wallet Info */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
+              {/* Mobile Wallet Info */}
+              <motion.div
+                initial={scaleIn.initial}
+                animate={scaleIn.animate}
+                className="rounded-xl p-4"
+                style={{ backgroundColor: '#2E2E30' }}
+              >
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
-                    <FaWallet className="text-purple-400 mr-3 text-xl" />
+                    <FaWallet className="mr-2" style={{ color: '#FF007F' }} />
                     <div>
-                      <h3 className="text-lg font-semibold">
-                        {isConnected ? 'Connected Wallet' : 'Cached Wallet Data'}
+                      <h3 className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+                        {isConnected ? 'Connected' : 'Cached Data'}
                       </h3>
-                      <p className="text-gray-300">{formatAddress(address || walletData?.address)}</p>
+                      <p className="text-xs" style={{ color: '#8A0D64' }}>
+                        {formatAddress(address || walletData?.address)}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    {currentNetwork && (
-                      <div className="text-right">
-                        <div className="text-sm text-gray-300">Network</div>
-                        <div className="font-semibold flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: currentNetwork.color }}
-                          />
-                          {currentNetwork.name}
-                        </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: '#8A0D64' }}>Network</div>
+                      <div className="text-xs font-semibold flex items-center">
+                        <div 
+                          className="w-2 h-2 rounded-full mr-1"
+                          style={{ backgroundColor: currentNetwork.color }}
+                        />
+                        <span style={{ color: '#FFFFFF' }}>{currentNetwork.name}</span>
                       </div>
-                    )}
+                    </div>
                     {isConnected && (
-                      <>
-                        <button
-                          onClick={refreshData}
-                          className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 p-2 rounded-lg transition-colors"
-                          title="Refresh Data"
-                        >
-                          <FaSync className={loading ? 'animate-spin' : ''} />
-                        </button>
-                        <button
-                          onClick={() => disconnect()}
-                          className="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg transition-colors"
-                        >
-                          Disconnect
-                        </button>
-                      </>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={refreshData}
+                        className="p-2 rounded-lg transition-colors"
+                        style={{ 
+                          backgroundColor: 'rgba(255, 0, 127, 0.1)',
+                          color: '#FF007F'
+                        }}
+                      >
+                        <FaSync className={`text-xs ${loading ? 'animate-spin' : ''}`} />
+                      </motion.button>
                     )}
                   </div>
                 </div>
-              </div>
+                
+                {isConnected && (
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => disconnect()}
+                    className="w-full py-2 px-3 rounded-lg text-xs transition-colors"
+                    style={{ 
+                      backgroundColor: 'rgba(255, 0, 60, 0.1)',
+                      color: '#FF003C'
+                    }}
+                  >
+                    Disconnect Wallet
+                  </motion.button>
+                )}
+              </motion.div>
 
-              {/* Show wallet data if available (cached or live) */}
-              {walletData ? (
-                <>
-                  {/* Portfolio Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-6">
-                      <FaCoins className="text-green-400 text-2xl mb-3" />
-                      <h3 className="text-lg font-semibold mb-2">Total Value</h3>
-                      <p className="text-2xl md:text-3xl font-bold text-green-400">
+              {/* Loading State */}
+              {loading && (
+                <motion.div
+                  initial={scaleIn.initial}
+                  animate={scaleIn.animate}
+                  className="text-center py-8"
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="inline-block"
+                  >
+                    <FaSync className="text-2xl mb-3" style={{ color: '#FF2FB3' }} />
+                  </motion.div>
+                  <p className="text-sm mb-2" style={{ color: '#FFFFFF' }}>
+                    Loading Portfolio Data...
+                  </p>
+                  {dataLoadingStage && (
+                    <p className="text-xs" style={{ color: '#8A0D64' }}>
+                      {dataLoadingStage}
+                    </p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Portfolio Data */}
+              {walletData && !loading && (
+                <motion.div className="space-y-4">
+                  {/* Mobile Portfolio Stats */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.div
+                      initial={slideInLeft.initial}
+                      animate={slideInLeft.animate}
+                      transition={{ delay: 0.1 }}
+                      className="rounded-xl p-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255, 0, 127, 0.1), rgba(255, 47, 179, 0.05))',
+                        border: '1px solid rgba(255, 0, 127, 0.2)'
+                      }}
+                    >
+                      <FaCoins className="text-lg mb-2" style={{ color: '#FF007F' }} />
+                      <h3 className="text-xs font-semibold mb-1" style={{ color: '#8A0D64' }}>
+                        Total Value
+                      </h3>
+                      <p className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
                         ${walletData.totalValue.toLocaleString()}
                       </p>
-                      <p className="text-xs text-green-300 mt-1">
-                        ${walletData.nativeValue.toLocaleString()} in {walletData.assets.find(a => a.isNative)?.symbol || 'ETH'}
-                      </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl p-6">
-                      <FaChartPie className="text-blue-400 text-2xl mb-3" />
-                      <h3 className="text-lg font-semibold mb-2">Health Score</h3>
-                      <p className="text-2xl md:text-3xl font-bold text-blue-400">
+                    <motion.div
+                      initial={slideInLeft.initial}
+                      animate={slideInLeft.animate}
+                      transition={{ delay: 0.2 }}
+                      className="rounded-xl p-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255, 90, 42, 0.1), rgba(255, 184, 42, 0.05))',
+                        border: '1px solid rgba(255, 90, 42, 0.2)'
+                      }}
+                    >
+                      <FaChartPie className="text-lg mb-2" style={{ color: '#FF5A2A' }} />
+                      <h3 className="text-xs font-semibold mb-1" style={{ color: '#8A0D64' }}>
+                        Health Score
+                      </h3>
+                      <p className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
                         {portfolioScore}/100
                       </p>
-                      <p className="text-xs text-blue-300 mt-1">
-                        {portfolioScore > 80 ? 'Excellent' : portfolioScore > 60 ? 'Good' : 'Needs Work'}
-                      </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-6">
-                      <FaGem className="text-purple-400 text-2xl mb-3" />
-                      <h3 className="text-lg font-semibold mb-2">Assets</h3>
-                      <p className="text-2xl md:text-3xl font-bold text-purple-400">
+                    <motion.div
+                      initial={slideInLeft.initial}
+                      animate={slideInLeft.animate}
+                      transition={{ delay: 0.3 }}
+                      className="rounded-xl p-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(108, 0, 184, 0.1), rgba(255, 184, 42, 0.05))',
+                        border: '1px solid rgba(108, 0, 184, 0.2)'
+                      }}
+                    >
+                      <FaGem className="text-lg mb-2" style={{ color: '#6C00B8' }} />
+                      <h3 className="text-xs font-semibold mb-1" style={{ color: '#8A0D64' }}>
+                        Assets
+                      </h3>
+                      <p className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
                         {walletData.assets.length}
                       </p>
-                      <p className="text-xs text-purple-300 mt-1">
-                        Risk: {walletData.riskScore}/100
-                      </p>
-                    </div>
+                    </motion.div>
 
-                    <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl p-6">
-                      <FaFire className="text-yellow-400 text-2xl mb-3" />
-                      <h3 className="text-lg font-semibold mb-2">Diversification</h3>
-                      <p className="text-2xl md:text-3xl font-bold text-yellow-400">
+                    <motion.div
+                      initial={slideInLeft.initial}
+                      animate={slideInLeft.animate}
+                      transition={{ delay: 0.4 }}
+                      className="rounded-xl p-4"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255, 184, 42, 0.1), rgba(255, 90, 42, 0.05))',
+                        border: '1px solid rgba(255, 184, 42, 0.2)'
+                      }}
+                    >
+                      <FaFire className="text-lg mb-2" style={{ color: '#FFB82A' }} />
+                      <h3 className="text-xs font-semibent mb-1" style={{ color: '#8A0D64' }}>
+                        Diversity
+                      </h3>
+                      <p className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
                         {walletData.diversificationScore}/100
                       </p>
-                      <p className="text-xs text-yellow-300 mt-1">
-                        {walletData.diversificationScore > 70 ? 'Well Balanced' : 'Needs Spread'}
-                      </p>
-                    </div>
+                    </motion.div>
                   </div>
 
-                  {/* Asset Breakdown */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold flex items-center">
-                        <FaChartPie className="text-purple-400 mr-3" />
-                        Asset Allocation {!isConnected && <span className="ml-2 text-sm text-yellow-400">(Cached)</span>}
+                  {/* Mobile Asset Breakdown */}
+                  <motion.div
+                    initial={scaleIn.initial}
+                    animate={scaleIn.animate}
+                    transition={{ delay: 0.5 }}
+                    className="rounded-xl p-4"
+                    style={{ backgroundColor: '#2E2E30' }}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold flex items-center">
+                        <FaChartPie className="mr-2" style={{ color: '#FF007F' }} />
+                        <span style={{ color: '#FFFFFF' }}>Assets</span>
+                        {!isConnected && <span className="ml-2 text-xs" style={{ color: '#FFB82A' }}>(Cached)</span>}
                       </h3>
-                      <div className="text-sm text-gray-400">
-                        Updated: {new Date(walletData.lastUpdated).toLocaleTimeString()}
-                      </div>
                     </div>
                     
-                    <div className="space-y-4">
-                      {walletData.assets.map((asset, index) => (
+                    <div className="space-y-3">
+                      {walletData.assets.slice(0, 6).map((asset, index) => (
                         <motion.div 
                           key={`${asset.symbol}-${index}`}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                          transition={{ delay: 0.6 + (index * 0.1) }}
+                          className="flex items-center justify-between p-3 rounded-lg transition-colors"
+                          style={{ backgroundColor: '#1A1A1D' }}
                         >
                           <div className="flex items-center">
-                            <div 
-                              className="w-4 h-4 rounded-full mr-3"
+                            <motion.div 
+                              className="w-3 h-3 rounded-full mr-3"
                               style={{ 
                                 backgroundColor: asset.isNative ? currentNetwork.color : 
                                   `hsl(${(index * 137.508) % 360}, 70%, 60%)`
-                              }} 
+                              }}
+                              animate={asset.isNative ? { 
+                                boxShadow: [
+                                  `0 0 8px ${currentNetwork.color}`,
+                                  `0 0 15px ${currentNetwork.color}`,
+                                  `0 0 8px ${currentNetwork.color}`
+                                ]
+                              } : {}}
+                              transition={{ duration: 2, repeat: Infinity }}
                             />
                             <div>
-                              <div className="font-semibold flex items-center">
-                                {asset.symbol}
-                                {asset.isNative && <span className="ml-2 text-xs bg-purple-500/30 px-2 py-1 rounded">Native</span>}
+                              <div className="text-sm font-semibold flex items-center">
+                                <span style={{ color: '#FFFFFF' }}>{asset.symbol}</span>
+                                {asset.isNative && (
+                                  <span className="ml-2 text-[10px] px-2 py-1 rounded" 
+                                        style={{ backgroundColor: 'rgba(255, 0, 127, 0.2)', color: '#FF007F' }}>
+                                    Native
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-sm text-gray-300">
-                                {asset.balance.toFixed(6)} {asset.symbol}
+                              <div className="text-xs" style={{ color: '#8A0D64' }}>
+                                {asset.balance.toFixed(4)} {asset.symbol}
                               </div>
                             </div>
                           </div>
                           
                           <div className="text-right">
-                            <div className="font-semibold">
+                            <div className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
                               ${asset.value.toLocaleString()}
                             </div>
-                            <div className="text-sm font-medium" style={{ 
-                              color: asset.allocation > 50 ? '#ef4444' : asset.allocation > 30 ? '#f59e0b' : '#10b981'
-                            }}>
+                            <div 
+                              className="text-xs font-medium"
+                              style={{ 
+                                color: asset.allocation > 50 ? '#FF003C' : 
+                                       asset.allocation > 30 ? '#FFB82A' : '#FF2FB3'
+                              }}
+                            >
                               {asset.allocation}%
                             </div>
                           </div>
                         </motion.div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
 
-                  {/* AI Analysis Button */}
-                  <div className="text-center">
+                  {/* Mobile AI Analysis Button */}
+                  <motion.div 
+                    className="text-center pt-2"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 }}
+                  >
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={analyzePortfolioWithAI}
                       disabled={analyzingPortfolio}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                      className="w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 disabled:opacity-50"
+                      style={{
+                        background: analyzingPortfolio ? '#2E2E30' : 'linear-gradient(90deg, #FF007F, #FF2FB3, #FF5A2A, #FFB82A)',
+                        boxShadow: analyzingPortfolio ? 'none' : '0 0 20px rgba(255, 47, 179, 0.4)'
+                      }}
                     >
                       {analyzingPortfolio ? (
-                        <div className="flex items-center">
-                          <FaSync className="animate-spin mr-3" />
-                          AI Analyzing Portfolio...
+                        <div className="flex items-center justify-center">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          >
+                            <FaBrain className="mr-2" />
+                          </motion.div>
+                          <span>AI Analyzing...</span>
                         </div>
                       ) : (
-                        <div className="flex items-center">
-                          <FaBrain className="mr-3" />
-                          {portfolioAnalysis ? 'Regenerate' : 'Generate'} AI Analysis
+                        <div className="flex items-center justify-center">
+                          <HiSparkles className="mr-2" />
+                          <span>{portfolioAnalysis ? 'Regenerate' : 'Get'} AI Analysis</span>
                         </div>
                       )}
                     </motion.button>
                     
-                    <p className="text-sm text-gray-400 mt-3">
+                    <p className="text-xs mt-2" style={{ color: '#8A0D64' }}>
                       {dataSource === 'cached' ? 
-                        'Analysis based on cached data • Connect wallet for live updates' :
-                        'Real-time analysis with current market conditions'
+                        '📱 Analysis from cached data' :
+                        '🔮 Real-time AI insights'
                       }
                     </p>
-                  </div>
-                </>
-              ) : loading ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12"
-                >
-                  <FaSync className="animate-spin text-4xl text-purple-400 mx-auto mb-4" />
-                  <p className="text-lg">Loading wallet data...</p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    {balanceLoading ? 'Fetching balance...' : 'Analyzing portfolio...'}
-                  </p>
+                  </motion.div>
                 </motion.div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-lg text-gray-400 mb-4">No wallet data available</p>
-                  <button
+              )}
+
+              {/* No Data State */}
+              {!walletData && !loading && (
+                <motion.div
+                  initial={scaleIn.initial}
+                  animate={scaleIn.animate}
+                  className="text-center py-8"
+                >
+                  <p className="text-sm mb-4" style={{ color: '#8A0D64' }}>
+                    No wallet data available
+                  </p>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => fetchWalletData(false)}
-                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-4 py-2 rounded-lg transition-colors"
+                    className="py-2 px-4 rounded-lg text-sm transition-colors"
+                    style={{ 
+                      backgroundColor: 'rgba(255, 0, 127, 0.1)',
+                      color: '#FF007F'
+                    }}
                   >
                     Load Portfolio Data
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               )}
             </motion.div>
           )}
 
-          {/* Step 3: Analysis Results */}
+          {/* Step 3: Mobile Analysis Results */}
           {step === 3 && portfolioAnalysis && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
+              key="analysis"
+              initial={fadeInUp.initial}
+              animate={fadeInUp.animate}
+              exit={fadeInUp.exit}
+              transition={{ duration: 0.4 }}
+              className="space-y-4"
             >
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold flex items-center">
-                    <HiSparkles className="text-yellow-400 mr-3" />
-                    AI Portfolio Intelligence
+              <motion.div
+                initial={scaleIn.initial}
+                animate={scaleIn.animate}
+                className="rounded-xl p-4"
+                style={{ backgroundColor: '#2E2E30' }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold flex items-center">
+                    <motion.div
+                      animate={{ rotate: [0, 15, -15, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <HiSparkles className="mr-2" style={{ color: '#FFB82A' }} />
+                    </motion.div>
+                    <span style={{ color: '#FFFFFF' }}>AI Insights</span>
                   </h3>
                   
-                  <div className="flex space-x-3">
-                    <button
+                  <div className="flex space-x-2">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
                       onClick={copyAnalysis}
-                      className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 p-3 rounded-lg transition-colors"
-                      title="Copy Analysis"
+                      className="p-2 rounded-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'rgba(255, 90, 42, 0.1)',
+                        color: '#FF5A2A'
+                      }}
                     >
-                      <FaCopy />
-                    </button>
+                      <FaCopy className="text-xs" />
+                    </motion.button>
                     
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
                       onClick={shareAnalysis}
-                      className="bg-green-500/20 hover:bg-green-500/30 text-green-400 p-3 rounded-lg transition-colors"
-                      title="Share Analysis"
+                      className="p-2 rounded-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'rgba(108, 0, 184, 0.1)',
+                        color: '#6C00B8'
+                      }}
                     >
-                      <FaShare />
-                    </button>
+                      <FaShare className="text-xs" />
+                    </motion.button>
                   </div>
                 </div>
 
-                <div className="bg-black/30 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <pre className="whitespace-pre-wrap font-mono text-sm text-gray-100 leading-relaxed">
+                <div 
+                  className="rounded-lg p-3 max-h-80 overflow-y-auto"
+                  style={{ backgroundColor: '#0B0C10' }}
+                >
+                  <pre className="whitespace-pre-wrap text-xs leading-relaxed" style={{ color: '#FFFFFF' }}>
                     {portfolioAnalysis}
                   </pre>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <button
+              {/* Mobile Action Buttons */}
+              <motion.div 
+                className="space-y-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => analyzePortfolioWithAI()}
                   disabled={analyzingPortfolio}
-                  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
+                  className="w-full py-3 px-4 rounded-xl font-semibold text-white transition-colors disabled:opacity-50"
+                  style={{
+                    background: analyzingPortfolio ? '#2E2E30' : 'linear-gradient(90deg, #FF007F, #FF2FB3)',
+                  }}
                 >
                   <FaSync className="mr-2" />
                   Refresh Analysis
-                </button>
+                </motion.button>
                 
-                <button
-                  onClick={() => setStep(2)}
-                  className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
-                >
-                  <FaEye className="mr-2" />
-                  View Portfolio
-                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setStep(2)}
+                    className="py-3 px-4 rounded-xl font-semibold text-white transition-colors"
+                    style={{ backgroundColor: '#2E2E30' }}
+                  >
+                    <FaEye className="mr-2" />
+                    Portfolio
+                  </motion.button>
 
-                <button
-                  onClick={refreshData}
-                  disabled={!isConnected}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
-                >
-                  <FaDatabase className="mr-2" />
-                  Sync Live Data
-                </button>
-              </div>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={refreshData}
+                    disabled={!isConnected}
+                    className="py-3 px-4 rounded-xl font-semibold text-white transition-colors disabled:opacity-50"
+                    style={{ 
+                      background: !isConnected ? '#2E2E30' : 'linear-gradient(90deg, #FF5A2A, #FFB82A)'
+                    }}
+                  >
+                    <FaDatabase className="mr-2" />
+                    Sync
+                  </motion.button>
+                </div>
+              </motion.div>
             </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
 
-      {/* Loading Overlay */}
+      {/* Mobile Loading Overlay */}
       <AnimatePresence>
         {(loading || analyzingPortfolio) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+            className="fixed inset-0 flex items-center justify-center z-50"
+            style={{ backgroundColor: 'rgba(11, 12, 16, 0.8)' }}
           >
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center max-w-sm mx-4">
-              <FaSync className="animate-spin text-4xl text-purple-400 mx-auto mb-4" />
-              <p className="text-lg mb-2">
-                {analyzingPortfolio ? 'AI Analyzing Portfolio...' : 'Loading Wallet Data...'}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="rounded-xl p-6 text-center mx-4 max-w-xs"
+              style={{ backgroundColor: '#2E2E30' }}
+            >
+              <motion.div
+                animate={{ 
+                  rotate: 360,
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                  scale: { duration: 1, repeat: Infinity }
+                }}
+                className="mb-4"
+              >
+                <FaBrain className="text-3xl mx-auto" style={{ color: '#FF2FB3' }} />
+              </motion.div>
+              <p className="text-sm mb-2 font-semibold" style={{ color: '#FFFFFF' }}>
+                {analyzingPortfolio ? '🔮 AI Analyzing...' : '📱 Loading Data...'}
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs" style={{ color: '#8A0D64' }}>
                 {analyzingPortfolio 
-                  ? 'Generating personalized insights'
-                  : 'Processing and caching data locally'
+                  ? 'Generating mobile insights'
+                  : dataLoadingStage || 'Processing portfolio'
                 }
               </p>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
