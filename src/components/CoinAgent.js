@@ -626,7 +626,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden pb-20">
-      <div className="max-w-md mx-auto py-6">
+      <div className="max-w-md mx-auto">
         {/* Header */}
         <motion.div 
           variants={slideUp}
@@ -635,29 +635,22 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
           className="text-center mb-8"
         >
           <motion.div 
-            className="flex items-center justify-center mb-4"
+            className="flex items-center justify-start mb-4"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            <motion.div
-              animate={{ 
-                textShadow: [
-                  "0 0 15px rgba(255, 47, 179, 0.5)",
-                  "0 0 25px rgba(255, 90, 42, 0.7)",
-                  "0 0 15px rgba(255, 47, 179, 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50}/>
-            </motion.div>
-            <h1 className="text-3xl font-bold text-white">
+            <div>
+              <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50} className='-mt-2'/>
+            </div>
+            <div className='ml-2.5'>
+            <h1 className="text-xl text-left font-bold text-white">
               Portiq AI
             </h1>
+            <p className="text-gray-300 text-sm mb-4">
+              AI-Powered Portfolio Intelligence
+            </p>
+            </div>
           </motion.div>
-          <p className="text-gray-200 text-sm mb-4">
-            AI-Powered Portfolio Intelligence
-          </p>
           
           {/* Data Status */}
           {walletData && (
@@ -665,7 +658,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               variants={scaleIn}
               initial="hidden"
               animate="visible"
-              className="glass-light rounded-lg px-3 py-2 text-xs"
+              className="glass-light inline-block mx-auto rounded-lg px-3 py-2 text-xs"
             >
               <div className="flex items-center justify-center space-x-2">
                 <FaDatabase className={`${dataSource === 'live' ? 'text-[#FFB82A]' : 'text-[#FF5A2A]'}`} />
