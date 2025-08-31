@@ -7,7 +7,7 @@ import {
   FaExclamationTriangle, FaSync, FaEye, FaShare, FaCopy, FaGem,
   FaCheckCircle, FaDatabase, FaRocket
 } from 'react-icons/fa'
-import { HiSparkles, HiLightningBolt } from 'react-icons/hi'
+import { HiLightningBolt } from 'react-icons/hi'
 import { IoSparkles } from "react-icons/io5";
 import { 
   useAccount, 
