@@ -1,25 +1,37 @@
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { cookieStorage, createStorage } from 'wagmi'
-import { mainnet, polygon, arbitrum, base, optimism } from 'wagmi/chains'
+import { defaultWagmiConfig } from '@web3modal/wagmi/react'
+import { http } from 'wagmi'
+import { mainnet, polygon, arbitrum, base, optimism, sepolia, bsc } from 'wagmi/chains'
 
-// Get projectId from https://cloud.walletconnect.com (free)
-export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
+// WalletConnect Project ID (from https://cloud.walletconnect.com)
+export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+if (!projectId) throw new Error('Missing NEXT_PUBLIC_WC_PROJECT_ID')
 
-const metadata = {
-  name: 'Portiq AI Agent',
-  description: 'Real Web3 Portfolio Intelligence',
-  url: 'https://portiq.ai',
-  icons: ['https://portiq.ai/icon.png']
+// Define supported chains
+export const chains = [mainnet, polygon, arbitrum, base, optimism, bsc, sepolia]
+
+// Optional: your own RPC transports (recommended for production)
+const transports = {
+  [mainnet.id]: http(),
+  [polygon.id]: http(),
+  [arbitrum.id]: http(),
+  [base.id]: http(),
+  [optimism.id]: http(),
+  [bsc.id]: http(),
+  [sepolia.id]: http()
 }
 
-const chains = [mainnet, polygon, arbitrum, base, optimism]
+// App metadata (shows in wallet during connection)
+export const metadata = {
+  name: 'MyDApp',
+  description: 'Web3 app that works on Desktop, Mobile & Telegram',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://example.com',
+  icons: [process.env.NEXT_PUBLIC_APP_ICON || 'https://example.com/icon.png']
+}
 
+// ✅ wagmi config (already complete, no createConfig needed)
 export const config = defaultWagmiConfig({
-  chains,
   projectId,
+  chains,
   metadata,
-  ssr: true,
-  storage: createStorage({
-    storage: cookieStorage
-  })
+  transports
 })
