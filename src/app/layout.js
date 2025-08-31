@@ -1,3 +1,4 @@
+import Web3Provider from "@/components/Web3Provider";
 import "./globals.css";
 import Script from "next/script";
 
@@ -65,7 +66,9 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/agent/agentlogo.png" />
       </head>
       <body className="antialiased min-h-screen bg-[#0B0C10] flex flex-col">
+        <Web3Provider>
         {children}
+        </Web3Provider>
       </body>
     </html>
   );
