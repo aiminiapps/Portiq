@@ -17,6 +17,7 @@ import {
 } from 'wagmi'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { formatEther } from 'viem'
+import Image from 'next/image'
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -648,13 +649,13 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <FaBrain className="text-3xl text-[#FF2FB3] mr-3" />
+              <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50}/>
             </motion.div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] via-[#FF5A2A] to-[#FFB82A] bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-white">
               Portiq AI
             </h1>
           </motion.div>
-          <p className="text-[#FFFFFF] text-sm mb-4">
+          <p className="text-gray-200 text-sm mb-4">
             AI-Powered Portfolio Intelligence
           </p>
           
@@ -664,7 +665,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               variants={scaleIn}
               initial="hidden"
               animate="visible"
-              className="bg-[#2E2E30] rounded-lg px-3 py-2 text-xs"
+              className="glass-light rounded-lg px-3 py-2 text-xs"
             >
               <div className="flex items-center justify-center space-x-2">
                 <FaDatabase className={`${dataSource === 'live' ? 'text-[#FFB82A]' : 'text-[#FF5A2A]'}`} />
@@ -736,7 +737,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   >
                     {step > num ? <FaCheckCircle /> : <Icon />}
                   </motion.div>
-                  <div className={`text-xs mt-1 ${step >= num ? 'text-[#FF2FB3]' : 'text-[#FFFFFF]'}`}>
+                  <div className={`text-sm mt-1 ${step >= num ? 'text-[#FF2FB3]' : 'text-[#FFFFFF]'}`}>
                     {label}
                   </div>
                 </motion.div>
@@ -784,7 +785,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                 whileTap={{ scale: 0.98 }}
                 onClick={connectWallet}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#FF5A2A] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
+                className="w-full glass-button bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#FF5A2A] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
                 style={{
                   boxShadow: loading ? 'none' : '0 0 20px rgba(255, 47, 179, 0.4)',
                 }}
@@ -1030,10 +1031,10 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                       {analyzingPortfolio ? (
                         <div className="flex items-center justify-center">
                           <motion.div
-                            animate={{ rotate: 360 }}
+                            animate={{ scale:[1,1.1,1.2,1.1,1] }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           >
-                            <FaBrain className="mr-2" />
+                            <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50}/>
                           </motion.div>
                           <span>AI Analyzing...</span>
                         </div>
