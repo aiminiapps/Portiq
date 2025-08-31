@@ -857,14 +857,14 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={refreshData}
-                          className="bg-[#6C00B8]/30 text-[#6C00B8] p-2 rounded-lg"
+                          className="bg-[#6C00B8]/30 glass-light text-white p-2 rounded-lg"
                         >
                           <FaSync className={`text-xs ${loading ? 'animate-spin' : ''}`} />
                         </motion.button>
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => disconnect()}
-                          className="bg-[#FF003C]/30 text-[#FF003C] px-2 py-2 rounded-lg text-xs"
+                          className="bg-[#FF003C]/20 text-red-500 px-2 py-2 rounded-lg text-xs"
                         >
                           Exit
                         </motion.button>
@@ -1206,25 +1206,13 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               variants={scaleIn}
               initial="hidden"
               animate="visible"
-              className="bg-[#2E2E30] rounded-xl p-6 text-center max-w-xs mx-4"
+              className="bg-[#2E2E30] glass rounded-xl p-6 text-center max-w-xs mx-4"
             >
               <motion.div
-                animate={{ 
-                  rotate: 360,
-                  color: [
-                    "#FF007F", 
-                    "#FF2FB3", 
-                    "#FF5A2A", 
-                    "#FFB82A",
-                    "#FF007F"
-                  ]
-                }}
-                transition={{ 
-                  rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                  color: { duration: 3, repeat: Infinity }
-                }}
+              animate={{ scale:[1,1.1,1] }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               >
-                <FaBrain className="text-3xl mx-auto mb-3" />
+                <Image src='/agent/agentlogo.png' alt='logo' width={50} height={50} className='mx-auto mb-2.5'/>
               </motion.div>
               <p className="text-[#FFFFFF] mb-2 text-sm">
                 {analyzingPortfolio ? 'AI Analyzing Portfolio...' : 'Loading Data...'}
