@@ -822,14 +822,14 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
               variants={slideUp}
               initial="hidden"
               animate="visible"
-              className="space-y-6"
+              className="space-y-6 pb-10"
             >
               {/* Wallet Info */}
               <motion.div 
                 variants={scaleIn}
-                className="bg-[#2E2E30] rounded-xl p-4"
+                className="bg-[#2E2E30] glass glass-p rounded-xl"
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between p-2">
                   <div className="flex items-center">
                     <FaWallet className="text-[#FF2FB3] mr-2" />
                     <div>
@@ -941,7 +941,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                   {/* Asset List */}
                   <motion.div 
                     variants={scaleIn}
-                    className="bg-[#2E2E30] rounded-xl p-4"
+                    className="bg-[#2E2E30] glass-light rounded-xl p-4"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-sm font-semibold flex items-center text-[#FFFFFF]">
@@ -958,7 +958,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="flex items-center justify-between p-3 bg-[#0B0C10] rounded-lg"
+                          className="flex glass-accent items-center justify-between p-3 bg-[#0B0C10] rounded-lg"
                         >
                           <div className="flex items-center">
                             <motion.div 
@@ -1016,7 +1016,7 @@ ${portfolioScore > 80 ? '🎯 Excellent portfolio balance!' : portfolioScore > 6
                       whileTap={{ scale: 0.98 }}
                       onClick={analyzePortfolioWithAI}
                       disabled={analyzingPortfolio}
-                      className="w-full bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#6C00B8] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
+                      className="w-full glass-button bg-gradient-to-r from-[#FF007F] via-[#FF2FB3] to-[#6C00B8] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
                       style={{
                         boxShadow: analyzingPortfolio ? 'none' : '0 0 25px rgba(255, 47, 179, 0.4)',
                       }}
