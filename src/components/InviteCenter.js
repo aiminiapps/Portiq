@@ -40,7 +40,7 @@ function PortiqInviteCenter() {
   }, []);
 
   const generateInviteLink = () => {
-    return `https://t.me/portiq_bot`;
+    return `https://t.me/Portiqcat_Bot`;
   };
 
   const handleCopyCode = async () => {

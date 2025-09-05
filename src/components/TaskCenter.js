@@ -4,13 +4,11 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/lib/storage';
 import { 
-  FaGift, FaTwitter, FaUserPlus, FaCoins, FaStar, FaFire, 
-  FaTrophy, FaRocket, FaBolt, FaGem, FaCheck, FaCopy,
-  FaShare, FaClock, FaCalendarDay, FaUsers, FaRetweet
+  FaGift, FaCoins, 
+  FaShare, FaCalendarDay, FaUsers, FaRetweet
 } from 'react-icons/fa';
-import { RiAiGenerate, RiTwitterXFill } from 'react-icons/ri';
-import { HiSparkles, HiLightningBolt } from 'react-icons/hi';
-import { BiTrendingUp, BiGift } from 'react-icons/bi';
+import { RiTwitterXFill } from 'react-icons/ri';
+import { HiSparkles } from 'react-icons/hi';
 
 const PortiqTaskCenter = () => {
   const {
@@ -81,7 +79,7 @@ const PortiqTaskCenter = () => {
       points: 1000,
       icon: <FaRetweet className="text-[#FF5A2A]" size={24} />,
       category: 'daily',
-      action: () => window.open('https://x.com/portiqai/status/1938070816236966000', '_blank')
+      action: () => window.open('https://x.com/AI_PTIQ', '_blank')
     },
     {
       id: 'followX',
@@ -92,7 +90,7 @@ const PortiqTaskCenter = () => {
       category: 'social',
       action: () => {
         setTwitterFollowCompleted(true);
-        window.open('https://x.com/portiqai', '_blank');
+        window.open('https://x.com/AI_PTIQ', '_blank');
       }
     },
     {

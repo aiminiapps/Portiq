@@ -240,7 +240,7 @@ const PortiqSocialTask = () => {
       addSpaiPoints(1000);
       setTwitterFollowCompleted(true);
       hapticFeedback('success');
-      window.open('https://x.com/portiqai', '_blank');
+      window.open('https://x.com/AI_PTIQ', '_blank');
     }
   };
 
