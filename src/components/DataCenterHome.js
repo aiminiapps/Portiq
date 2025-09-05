@@ -185,59 +185,6 @@ export default function PortiqCommunityCenter() {
         </h1>
         <p className="text-gray-300 text-sm">Real traders optimizing portfolios with AI</p>
       </motion.div>
-
-      {/* User Avatars Overlap Section */}
-      <motion.div 
-        className="flex justify-center mb-8"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <div className="relative">
-          <div className="flex items-center -space-x-3">
-            {userAvatars.slice(0, 6).map((user, index) => (
-              <motion.div
-                key={index}
-                className="w-12 h-12 bg-white/70 backdrop-blur-sm rounded-full border-2 border-[#FF007F]/30 flex items-center justify-center shadow-lg relative overflow-hidden"
-                // style={{
-                //   background: `linear-gradient(135deg, 
-                //     rgba(255, 0, 127, 0.1) 0%, 
-                //     rgba(255, 47, 179, 0.08) 50%, 
-                //     rgba(108, 0, 184, 0.05) 100%)`
-                // }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                whileHover={{ scale: 1.1, zIndex: 50 }}
-                whileTap={{ scale: 0.95 }}
-                onTap={() => hapticFeedback('light')}
-              >
-                {user.avatar}
-              </motion.div>
-            ))}
-            <motion.div
-              className="w-20 h-12 rounded-full border-2 border-[#FFB82A]/30 flex items-center justify-center text-[#FFB82A] text-xs font-bold shadow-lg"
-              style={{
-                background: `linear-gradient(135deg, 
-                  rgba(255, 184, 42, 0.1) 0%, 
-                  rgba(255, 90, 42, 0.08) 50%, 
-                  rgba(255, 0, 127, 0.05) 100%)`
-              }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.9 }}
-            >
-              +{(totalUsers - 6).toLocaleString()}
-            </motion.div>
-          </div>
-          <div className="text-center mt-4">
-            <span className="text-gray-300 text-sm font-medium">
-              {totalUsers.toLocaleString()} active optimizers
-            </span>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Stats Cards */}
       <motion.div 
         className="grid grid-cols-2 gap-2 mb-2 max-w-sm mx-auto"

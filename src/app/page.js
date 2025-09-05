@@ -461,15 +461,15 @@ function PortiqTelegramMiniApp() {
       transition={{ duration: 0.8 }}
     >
       {/* <PortiqEarningTimer /> */}
-      <PortiqUserBalance />
-      <PortiqSocialTask />
-      <PortiqNavigationButtons
+      {/* <PortiqUserBalance /> */}
+      {/* <PortiqNavigationButtons
         setActiveTab={handleTabNavigation}
         earningTimer={earningTimer}
         startEarningTimer={startEarningTimer}
-      />
+        /> */}
       <PortiqPortfolioCenter/>
       <DataCenterHome />
+      <PortiqSocialTask />
       <div className="h-20" />
     </motion.div>
   );
